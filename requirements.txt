@@ -1,0 +1,27 @@
+# Core numerics and imaging
+numpy>=1.26
+Pillow>=10.0
+opencv-python-headless>=4.9
+tqdm>=4.66
+
+# Face recognition models (open-source set of the paper)
+deepface>=0.0.93
+tensorflow>=2.16
+tf-keras>=2.16
+
+# Proprietary-model interface (mockup included, real models not distributed)
+onnx>=1.15
+onnxruntime>=1.17
+torch>=2.2  # required by LPIPS
+
+# Image quality metrics
+scikit-image>=0.22
+lpips>=0.1.4
+
+# Statistics
+scipy>=1.11
+pandas>=2.1
+
+# Dataset download / upload (HuggingFace)
+datasets>=2.19
+huggingface_hub>=0.23

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Pipeline artifacts
+/data/
+/outputs/
+/models/proprietary/*.onnx
+/models/mockup/*.onnx
+
+# Third-party checkouts (see docs/JPEG_AI.md)
+/third_party/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store

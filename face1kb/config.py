@@ -20,7 +20,7 @@ OUTPUT_ROOT = Path(
 
 #: HuggingFace dataset with the aligned face crops used in the paper.
 HF_DATASET_ID = os.environ.get(
-    "FACE1KB_HF_DATASET", "innovatrics/1kb-face-aligned"
+    "FACE1KB_HF_DATASET", "Cha53c/1kb-face-aligned"
 )
 
 #: Local checkout of the JPEG-AI reference software (see docs/JPEG_AI.md).

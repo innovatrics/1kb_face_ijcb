@@ -22,17 +22,19 @@ Usage
 import argparse
 import csv
 
-from datasets import load_dataset
+from datasets import Dataset, load_dataset
 from tqdm import tqdm
 
 from face1kb import config
 
 
-def export_resolution(resolution: int) -> list[tuple[str, str]]:
-    """Export one resolution config of the HF dataset to PNG files on disk.
+def export_resolution(dataset: Dataset, resolution: int) -> list[tuple[str, str]]:
+    """Export the crops of one resolution to PNG files on disk.
 
     Parameters
     ----------
+    dataset : Dataset
+        The full HF dataset holding both resolutions (``resolution`` column).
     resolution : int
         Aligned crop resolution (112 or 224).
 
@@ -44,12 +46,14 @@ def export_resolution(resolution: int) -> list[tuple[str, str]]:
     out_dir = config.aligned_dir(resolution)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    dataset = load_dataset(
-        config.HF_DATASET_ID, name=f"aligned_{resolution}", split="train"
+    # Filter on the resolution column only, so the image bytes are not decoded
+    # for the discarded rows.
+    subset = dataset.filter(
+        lambda res: res == resolution, input_columns="resolution"
     )
 
     names = []
-    for record in tqdm(dataset, desc=f"aligned_{resolution}"):
+    for record in tqdm(subset, desc=f"aligned_{resolution}"):
         rel_name = record["file_name"]
         target = out_dir / rel_name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -84,9 +88,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    dataset = load_dataset(config.HF_DATASET_ID, split="train")
+
     names_per_resolution = {}
     for resolution in args.resolutions:
-        names_per_resolution[resolution] = export_resolution(resolution)
+        names_per_resolution[resolution] = export_resolution(dataset, resolution)
         print(f"Exported {len(names_per_resolution[resolution])} images "
               f"to {config.aligned_dir(resolution)}")
 

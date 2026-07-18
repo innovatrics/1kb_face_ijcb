@@ -80,9 +80,10 @@ proprietary face detector and ArcFace-style five-landmark alignment; since
 that step is not reproducible without proprietary tooling, we publish the
 **aligned crops** directly:
 
-- **HuggingFace dataset:** [`innovatrics/1kb-face-aligned`](https://huggingface.co/datasets/innovatrics/1kb-face-aligned)
-  with configs `aligned_112` and `aligned_224` (image, identity,
-  file name, resolution).
+- **HuggingFace dataset:** [`Cha53c/1kb-face-aligned`](https://huggingface.co/datasets/Cha53c/1kb-face-aligned)
+  — a single split holding both crop resolutions (image, identity,
+  file name, resolution); the `resolution` column (112 or 224)
+  selects a resolution.
 
 `face1kb.data.download_dataset` fetches it automatically. Verification uses
 all non-redundant image pairs — 1.52 M mated and 152.2 M non-mated — formed

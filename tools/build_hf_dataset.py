@@ -4,8 +4,8 @@ Packages the aligned 112x112 and 224x224 face crops (produced from the
 public `AI-Solutions-KK/face_recognition_dataset
 <https://huggingface.co/datasets/AI-Solutions-KK/face_recognition_dataset>`_
 with a proprietary face detector and ArcFace-style five-landmark alignment)
-into one Hub dataset with two configs, ``aligned_112`` and ``aligned_224``.
-Each record holds:
+into a single Hub dataset (one default config) that holds both resolutions;
+the ``resolution`` column (112 or 224) distinguishes them. Each record holds:
 
 - ``image``      - the aligned PNG crop,
 - ``identity``   - identity label (105 unique values),
@@ -27,7 +27,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from datasets import Dataset, Features, Image, Value
+from datasets import Dataset, Features, Image, Value, concatenate_datasets
 from huggingface_hub import HfApi
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -52,8 +52,8 @@ Kilobyte: Evaluating Image Compression Algorithms for Barcode-Constrained
 Biometric Verification*. Derived from the MIT-licensed
 [AI-Solutions-KK/face_recognition_dataset][source] (105 identities,
 17,534 images) by face detection with a proprietary detector followed by
-ArcFace-style five-landmark alignment, exported at two resolutions as the
-configs `aligned_112` and `aligned_224`.
+ArcFace-style five-landmark alignment. Both crop resolutions (112 and 224
+pixels) live in a single split; the `resolution` column distinguishes them.
 
 [source]: https://huggingface.co/datasets/AI-Solutions-KK/face_recognition_dataset
 
@@ -64,7 +64,8 @@ ordering), `resolution` (112 or 224).
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("{repo_id}", "aligned_112", split="train")
+ds = load_dataset("{repo_id}", split="train")
+ds_112 = ds.filter(lambda r: r == 112, input_columns="resolution")
 ```
 
 Replication code: https://github.com/innovatrics/1kb_face_ijcb
@@ -72,7 +73,7 @@ Replication code: https://github.com/innovatrics/1kb_face_ijcb
 
 
 def build_split(source_dir: Path, resolution: int) -> Dataset:
-    """Create one resolution config from a directory of identity folders."""
+    """Build the records for one resolution from a directory of identity folders."""
     image_paths = sorted(source_dir.rglob("*.png"))
     if not image_paths:
         raise SystemExit(f"No PNG images found under {source_dir}")
@@ -100,7 +101,7 @@ def build_split(source_dir: Path, resolution: int) -> Dataset:
 
 
 def main() -> None:
-    """Build both configs and push them to the Hub."""
+    """Build both resolutions into one dataset and push it to the Hub."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--source-112", required=True, type=Path)
     parser.add_argument("--source-224", required=True, type=Path)
@@ -113,15 +114,13 @@ def main() -> None:
     args = parser.parse_args()
 
     sources = {112: args.source_112, 224: args.source_224}
-    for resolution, source_dir in sources.items():
-        dataset = build_split(source_dir, resolution)
-        dataset.push_to_hub(
-            args.repo_id,
-            config_name=f"aligned_{resolution}",
-            split="train",
-            private=args.private,
-        )
-        print(f"Pushed aligned_{resolution} to {args.repo_id}")
+    parts = [
+        build_split(source_dir, resolution)
+        for resolution, source_dir in sources.items()
+    ]
+    dataset = concatenate_datasets(parts)
+    dataset.push_to_hub(args.repo_id, split="train", private=args.private)
+    print(f"Pushed {len(dataset)} records to {args.repo_id}")
 
     api = HfApi()
     api.upload_file(

@@ -67,6 +67,7 @@ face1kb/                      Evaluation pipeline (Python package)
 
 tools/build_hf_dataset.py     Script that built the HuggingFace dataset
 docs/JPEG_AI.md               How to obtain & configure JPEG-AI
+docs/jpeg-ai-compat.patch     Compatibility changes for that checkout
 setup_env.sh                  Environment preparation
 run_all.sh                    Complete pipeline, end to end
 ```

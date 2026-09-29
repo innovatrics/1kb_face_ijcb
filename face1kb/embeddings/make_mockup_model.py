@@ -60,9 +60,7 @@ def build_model(seed: int) -> onnx.ModelProto:
             ),
             helper.make_node("Reshape", ["pooled", "flat_shape"], ["flat"]),
             helper.make_node("MatMul", ["flat", "projection"], ["projected"]),
-            helper.make_node(
-                "ReduceL2", ["projected"], ["norm"], axes=[1], keepdims=1
-            ),
+            helper.make_node("ReduceL2", ["projected"], ["norm"], axes=[1], keepdims=1),
             helper.make_node("Div", ["projected", "norm"], ["embedding"]),
         ],
         name="mockup_embedder",

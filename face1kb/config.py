@@ -14,14 +14,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = Path(os.environ.get("FACE1KB_DATA_ROOT", REPO_ROOT / "data"))
 
 #: Root directory for computed outputs (embeddings, metrics, reports).
-OUTPUT_ROOT = Path(
-    os.environ.get("FACE1KB_OUTPUT_ROOT", REPO_ROOT / "outputs")
-)
+OUTPUT_ROOT = Path(os.environ.get("FACE1KB_OUTPUT_ROOT", REPO_ROOT / "outputs"))
 
 #: HuggingFace dataset with the aligned face crops used in the paper.
-HF_DATASET_ID = os.environ.get(
-    "FACE1KB_HF_DATASET", "Cha53c/1kb-face-aligned"
-)
+HF_DATASET_ID = os.environ.get("FACE1KB_HF_DATASET", "Cha53c/1kb-face-aligned")
 
 #: Local checkout of the JPEG-AI reference software (see docs/JPEG_AI.md).
 JPEGAI_REPO_DIR = Path(
@@ -36,9 +32,7 @@ JPEGAI_REPO_DIR = Path(
 #: distributed with this repository; a mockup with an identical interface is
 #: generated for each missing one (see face1kb/embeddings/make_mockup_model.py).
 PROPRIETARY_MODELS_DIR = Path(
-    os.environ.get(
-        "FACE1KB_PROPRIETARY_MODELS", REPO_ROOT / "models" / "proprietary"
-    )
+    os.environ.get("FACE1KB_PROPRIETARY_MODELS", REPO_ROOT / "models" / "proprietary")
 )
 
 #: Directory with the generated mockup embedding models (one per proprietary

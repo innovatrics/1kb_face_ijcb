@@ -130,9 +130,7 @@ def main() -> None:
             print(f"skipping {model_name} ({out_path.name} exists)")
             continue
         model_path = resolve_model_path(model_name)
-        embeddings = compute_for_model(
-            model_path, names, image_dir, desc=model_name
-        )
+        embeddings = compute_for_model(model_path, names, image_dir, desc=model_name)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         np.save(out_path, embeddings)
         print(f"{model_name}: saved {embeddings.shape} to {out_path}")

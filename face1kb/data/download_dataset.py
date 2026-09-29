@@ -63,9 +63,7 @@ def export_resolution(dataset: Dataset, resolution: int) -> list[tuple[str, str]
 
     # Filter on the resolution column only, so the image bytes are not decoded
     # for the discarded rows.
-    subset = dataset.filter(
-        lambda res: res == resolution, input_columns="resolution"
-    )
+    subset = dataset.filter(lambda res: res == resolution, input_columns="resolution")
 
     names = []
     for record in tqdm(subset, desc=f"aligned_{resolution}"):
@@ -111,8 +109,10 @@ def main() -> None:
     names_per_resolution = {}
     for resolution in args.resolutions:
         names_per_resolution[resolution] = export_resolution(dataset, resolution)
-        print(f"Exported {len(names_per_resolution[resolution])} images "
-              f"to {config.aligned_dir(resolution)}")
+        print(
+            f"Exported {len(names_per_resolution[resolution])} images "
+            f"to {config.aligned_dir(resolution)}"
+        )
 
     name_sets = {tuple(n) for n in names_per_resolution.values()}
     if len(name_sets) > 1:

@@ -68,57 +68,66 @@ def measure_codec(
                 with tempfile.NamedTemporaryFile(suffix=extension) as tmp:
                     out = Path(tmp.name)
                     if codec == "jpeg":
-                        compress_times.append(_timed(
-                            lambda: image.save(
-                                out, "JPEG", quality=quality, optimize=True
+                        compress_times.append(
+                            _timed(
+                                lambda: image.save(
+                                    out, "JPEG", quality=quality, optimize=True
+                                )
                             )
-                        ))
+                        )
                     elif codec == "jpeg2000":
-                        compress_times.append(_timed(
-                            lambda: image.save(
-                                out, "JPEG2000", quality_layers=[quality]
+                        compress_times.append(
+                            _timed(
+                                lambda: image.save(
+                                    out, "JPEG2000", quality_layers=[quality]
+                                )
                             )
-                        ))
+                        )
                     elif codec == "webp":
-                        compress_times.append(_timed(
-                            lambda: image.save(
-                                out, "WEBP", quality=quality, method=6
+                        compress_times.append(
+                            _timed(
+                                lambda: image.save(
+                                    out, "WEBP", quality=quality, method=6
+                                )
                             )
-                        ))
+                        )
                     elif codec == "jpeg_xl":
                         with tempfile.NamedTemporaryFile(suffix=".png") as png:
                             image.save(png.name, "PNG")
                             # cjxl rejects -q below 5 (libjxl 0.7).
                             jxl_quality = str(max(5, quality))
-                            compress_times.append(_timed(
-                                lambda: subprocess.run(
-                                    ["cjxl", png.name, str(out),
-                                     "-q", jxl_quality],
-                                    capture_output=True,
-                                    check=True,
+                            compress_times.append(
+                                _timed(
+                                    lambda: subprocess.run(
+                                        ["cjxl", png.name, str(out), "-q", jxl_quality],
+                                        capture_output=True,
+                                        check=True,
+                                    )
                                 )
-                            ))
-                    elif codec == "jpeg_fzt":
-                        compress_times.append(_timed(
-                            lambda: jpeg_fzt.compress_with_quality(
-                                image, quality
-                            )[0].save(
-                                out, "JPEG", quality=quality, optimize=True
                             )
-                        ))
+                    elif codec == "jpeg_fzt":
+                        compress_times.append(
+                            _timed(
+                                lambda: jpeg_fzt.compress_with_quality(image, quality)[
+                                    0
+                                ].save(out, "JPEG", quality=quality, optimize=True)
+                            )
+                        )
                     elif codec == "jpeg_ai":
                         with tempfile.NamedTemporaryFile(suffix=".png") as png:
                             image.save(png.name, "PNG")
-                            compress_times.append(_timed(
-                                lambda: jpeg_ai.encode_at_bpp(
-                                    png.name, out, quality
+                            compress_times.append(
+                                _timed(
+                                    lambda: jpeg_ai.encode_at_bpp(
+                                        png.name, out, quality
+                                    )
                                 )
-                            ))
+                            )
 
                     if out.exists() and out.stat().st_size > 0:
-                        decompress_times.append(_timed(
-                            lambda: decode_to_rgb(out, resolution)
-                        ))
+                        decompress_times.append(
+                            _timed(lambda: decode_to_rgb(out, resolution))
+                        )
 
     return compress_times, decompress_times
 
@@ -146,9 +155,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    image_paths = sorted(
-        config.aligned_dir(args.resolution).rglob("*.png")
-    )[: args.n_images]
+    image_paths = sorted(config.aligned_dir(args.resolution).rglob("*.png"))[
+        : args.n_images
+    ]
     if not image_paths:
         raise SystemExit("No aligned images found; run the data stage first.")
 

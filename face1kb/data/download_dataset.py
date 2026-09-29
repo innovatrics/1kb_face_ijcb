@@ -14,6 +14,12 @@ The script also writes ``data/names.csv`` (one row per image: relative file
 name and identity), which defines the canonical image ordering used by all
 later pipeline stages.
 
+The dataset is private and available on request from the authors (contact
+details are in the paper). Once access has been granted to your HuggingFace
+account, authenticate with ``hf auth login`` (``huggingface-cli login`` in
+older ``huggingface_hub`` releases) or set the ``HF_TOKEN`` environment
+variable before running the script.
+
 Usage
 -----
     python -m face1kb.data.download_dataset [--resolutions 112 224]
@@ -23,9 +29,18 @@ import argparse
 import csv
 
 from datasets import Dataset, load_dataset
+from datasets.exceptions import DatasetNotFoundError
 from tqdm import tqdm
 
 from face1kb import config
+
+ACCESS_HINT = """\
+Cannot access the HuggingFace dataset '{dataset_id}'.
+
+The aligned face crops are available on request from the authors (contact
+details are in the paper). Once access has been granted to your HuggingFace
+account, authenticate with `hf auth login` (or set the HF_TOKEN environment
+variable) and run this command again."""
 
 
 def export_resolution(dataset: Dataset, resolution: int) -> list[tuple[str, str]]:
@@ -88,7 +103,10 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    dataset = load_dataset(config.HF_DATASET_ID, split="train")
+    try:
+        dataset = load_dataset(config.HF_DATASET_ID, split="train")
+    except DatasetNotFoundError as exc:
+        raise SystemExit(ACCESS_HINT.format(dataset_id=config.HF_DATASET_ID)) from exc
 
     names_per_resolution = {}
     for resolution in args.resolutions:

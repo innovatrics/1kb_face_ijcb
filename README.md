@@ -5,9 +5,10 @@ Verification**
 
 This repository is the supplementary material for our paper **accepted at
 the IEEE International Joint Conference on Biometrics (IJCB) 2026**. It
-contains everything needed to replicate the paper's experiments: the
-evaluation pipeline (data preparation, compression, embedding extraction,
-metric computation, statistical tests) and a link to the aligned dataset.
+contains the code needed to replicate the paper's automated evaluation —
+data preparation, compression, embedding extraction, metric computation and
+statistical tests — and explains how to obtain the aligned dataset
+(available on request).
 
 > 📄 **Paper:** arXiv link coming soon.
 
@@ -43,7 +44,7 @@ metric computation, statistical tests) and a link to the aligned dataset.
 face1kb/                      Evaluation pipeline (Python package)
 ├── config.py                 Central paths & constants (env-overridable)
 ├── data/                     1) Data preparation
-│   ├── download_dataset.py   Fetch aligned crops from HuggingFace
+│   ├── download_dataset.py   Fetch aligned crops from HuggingFace (on request)
 │   ├── pairs.py              Canonical verification-pair protocol
 │   └── define_pairs.py       Pair statistics / optional CSV export
 ├── compression/              2) Compression to the 1 kB budget
@@ -78,17 +79,28 @@ The evaluation uses the publicly available, MIT-licensed
 [AI-Solutions-KK/face_recognition_dataset](https://huggingface.co/datasets/AI-Solutions-KK/face_recognition_dataset)
 (105 identities, 17,534 images). The images were preprocessed with a
 proprietary face detector and ArcFace-style five-landmark alignment; since
-that step is not reproducible without proprietary tooling, we publish the
-**aligned crops** directly:
+that step is not reproducible without proprietary tooling, we provide the
+**aligned crops** used in the paper as a HuggingFace dataset:
 
-- **HuggingFace dataset:** [`Cha53c/1kb-face-aligned`](https://huggingface.co/datasets/Cha53c/1kb-face-aligned)
-  — a single split holding both crop resolutions (image, identity,
-  file name, resolution); the `resolution` column (112 or 224)
-  selects a resolution.
+- **Dataset id:** `Cha53c/1kb-face-aligned` — a single split holding both
+  crop resolutions (image, identity, file name, resolution); the
+  `resolution` column (112 or 224) selects a resolution.
+- **Access:** the dataset is private and **available on request** from the
+  authors; contact details are in the paper. Access is granted to a
+  HuggingFace account.
 
-`face1kb.data.download_dataset` fetches it automatically. Verification uses
-all non-redundant image pairs — 1.52 M mated and 152.2 M non-mated — formed
-directly from the identity labels (see `face1kb/data/pairs.py`).
+Once access has been granted, authenticate and download:
+
+```bash
+hf auth login        # or export HF_TOKEN=<your token>
+                     # (older huggingface_hub: huggingface-cli login)
+python -m face1kb.data.download_dataset
+```
+
+The script exports the crops to `data/aligned_<resolution>/` and writes the
+canonical image list `data/names.csv`. Verification uses all non-redundant
+image pairs — 1.52 M mated and 152.2 M non-mated — formed directly from the
+identity labels (see `face1kb/data/pairs.py`).
 
 ## Getting started
 
@@ -102,6 +114,8 @@ source .venv/bin/activate
 
 External requirements:
 
+- access to the aligned dataset (on request, see [Dataset](#dataset)) and
+  a HuggingFace login,
 - `cjxl`/`djxl` for JPEG XL (`sudo apt install libjxl-tools`),
 - the JPEG-AI reference software for the `jpeg_ai` codec — **see
   [docs/JPEG_AI.md](docs/JPEG_AI.md)**; without it the pipeline runs with

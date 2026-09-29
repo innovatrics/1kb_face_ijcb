@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run the complete replication pipeline end to end:
 #
-#   1. download the aligned dataset from HuggingFace,
+#   1. download the aligned dataset from HuggingFace (available on request
+#      from the authors; log in first with `hf auth login` or set HF_TOKEN),
 #   2. report the verification-pair statistics,
 #   3. compress every image with all available codecs (1 kB budget),
 #   4. decode all bitstreams back to PNG,

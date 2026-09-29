@@ -180,6 +180,38 @@ parameter):
 
 ![Visual comparison of the six codecs at 1 kB](assets/visual_comparison_224.png)
 
+## Differences from the paper
+
+Where the code deliberately does not reproduce a number printed in the
+paper, the difference is listed here.
+
+- **Codec speed (Table 2).** `face1kb.metrics.measure_speed` is a
+  lightweight approximation of the measurement behind Table 2, not a re-run
+  of it, so its numbers differ beyond the hardware dependence of any timing:
+  - it sweeps quality 1, 11, ..., 91 (paper: 0, 10, ..., 100, with 0 run as
+    1), so the slow quality-100 end is never measured; for JPEG-XL both use
+    `cjxl -q` of at least 5, the lowest value libjxl 0.7 accepts;
+  - JPEG-AI sweeps 0.10-0.30 bpp (`--set_target_bpp` 10, 14, ..., 30;
+    paper: 0.04-2.0 bpp, 4 ... 200 in 11 levels);
+  - it times 20 images per resolution by default (`--n-images`; paper:
+    100);
+  - it reports a single JPEG-AI row on the visible device
+    (`CUDA_VISIBLE_DEVICES=-1` selects the CPU; paper: separate GPU and CPU
+    rows) and does not restrict the CPU codecs to one thread (paper:
+    single-threaded on an Intel Xeon E5-2683; `taskset -c 0` approximates
+    that);
+  - it includes file I/O: every bitstream is written to and decoded from a
+    temporary file (paper: in-memory encoding and decoding for JPEG,
+    JPEG2000, WebP and JPEG-FzT);
+  - JPEG-FzT compression JPEG-encodes the F-transform stage twice
+    (`jpeg_fzt.compress_with_quality` already writes it once to measure its
+    size), and its decompression also includes JPEG decoding and reading the
+    inverse-basis weights (paper: a single encode, and the inverse
+    F-transform alone);
+  - JPEG-AI encoding does not write the reconstruction (`-r`), which the
+    paper's encode timing included, and its decoding also reads the decoded
+    PNG back into an array.
+
 ## Citation
 
 ```bibtex

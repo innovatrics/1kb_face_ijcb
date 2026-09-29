@@ -1,15 +1,20 @@
-"""Compression and decompression speed per codec (Tables 1 and 2).
+"""Compression and decompression speed per codec (Table 2).
 
 Times single-image compression and decompression for every codec on a
-sample of aligned images, sweeping the codec quality parameter as in the
-paper, and reports mean +- half-range (``(max - min) / 2``) in ms/image::
+sample of aligned images, sweeping the codec quality parameter, and reports
+mean +- half-range (``(max - min) / 2``) in ms/image over all runs (quality
+levels x images), the statistic used in Table 2 of the paper::
 
     outputs/metrics/speed_<resolution>.csv
 
-Pillow-based codecs and JPEG-FzT run on CPU; JPEG-XL is measured through
-the ``cjxl``/``djxl`` command-line tools (process-spawn overhead included);
-JPEG-AI uses the reference software and runs per-image on the GPU without
-model caching between measurements amortised (models are loaded once).
+Pillow-based codecs and JPEG-FzT run in-process on the CPU; JPEG-XL is
+measured through the ``cjxl``/``djxl`` command-line tools (process-spawn
+overhead included); JPEG-AI runs the reference software on the visible
+device (GPU by default). Its encoder and decoder processes stay alive
+between calls, so the network weights are loaded only once - inside the
+first timed encode and the first timed decode.
+
+The protocol differs from the paper's; see "Differences from the paper" in README.md.
 
 Usage
 -----

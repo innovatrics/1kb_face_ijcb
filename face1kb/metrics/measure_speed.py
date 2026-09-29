@@ -83,10 +83,12 @@ def measure_codec(
                     elif codec == "jpeg_xl":
                         with tempfile.NamedTemporaryFile(suffix=".png") as png:
                             image.save(png.name, "PNG")
+                            # cjxl rejects -q below 5 (libjxl 0.7).
+                            jxl_quality = str(max(5, quality))
                             compress_times.append(_timed(
                                 lambda: subprocess.run(
                                     ["cjxl", png.name, str(out),
-                                     "-q", str(quality)],
+                                     "-q", jxl_quality],
                                     capture_output=True,
                                     check=True,
                                 )

@@ -31,17 +31,19 @@ JPEGAI_REPO_DIR = Path(
     )
 )
 
-#: Directory with the proprietary ONNX face-recognition models. The models are
-#: NOT distributed with this repository; a mockup with an identical interface
-#: is generated instead (see face1kb/embeddings/make_mockup_model.py).
+#: Directory with the proprietary ONNX face-recognition models, expected as
+#: ``<name>.onnx`` for every name in PROPRIETARY_MODELS. The models are NOT
+#: distributed with this repository; a mockup with an identical interface is
+#: generated for each missing one (see face1kb/embeddings/make_mockup_model.py).
 PROPRIETARY_MODELS_DIR = Path(
     os.environ.get(
         "FACE1KB_PROPRIETARY_MODELS", REPO_ROOT / "models" / "proprietary"
     )
 )
 
-#: Path of the generated mockup embedding model.
-MOCKUP_MODEL_PATH = REPO_ROOT / "models" / "mockup" / "mockup_512d.onnx"
+#: Directory with the generated mockup embedding models (one per proprietary
+#: model, see mockup_model_path).
+MOCKUP_MODELS_DIR = REPO_ROOT / "models" / "mockup"
 
 #: Face-crop resolutions evaluated in the paper.
 RESOLUTIONS = (112, 224)
@@ -104,6 +106,11 @@ def embeddings_dir(resolution: int) -> Path:
 def metrics_dir() -> Path:
     """Directory with the computed metrics, tables and reports."""
     return OUTPUT_ROOT / "metrics"
+
+
+def mockup_model_path(model_name: str) -> Path:
+    """Generated mockup ONNX model standing in for proprietary *model_name*."""
+    return MOCKUP_MODELS_DIR / f"{model_name}_mockup_512d.onnx"
 
 
 #: CSV with one row per image: relative file name and identity label.

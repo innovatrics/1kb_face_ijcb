@@ -56,7 +56,7 @@ face1kb/                      Evaluation pipeline (Python package)
 ├── embeddings/               3) Face-embedding extraction
 │   ├── compute_embeddings.py             7 open-source models (DeepFace)
 │   ├── compute_embeddings_proprietary.py 3 proprietary models / mockup
-│   └── make_mockup_model.py              Deterministic mockup ONNX
+│   └── make_mockup_model.py              Deterministic mockup ONNX per model
 └── metrics/                  4) Metrics of the paper
     ├── verification.py       Pair scores, EER, FRR@FAR core
     ├── compute_accuracy.py   Accuracy per model × codec (Sec. 3.3)
@@ -141,15 +141,36 @@ redirected with environment variables (`FACE1KB_DATA_ROOT`,
 
 Three of the ten evaluated recognition models (`inno-fast`,
 `inno-balanced`, `inno-accurate`) are proprietary Innovatrics products and
-**cannot be distributed** with this repository. The pipeline substitutes a
-small deterministic **mockup ONNX model** with the identical interface
-(112×112 BGR input in [-1, 1], 512-D embedding) so every stage runs end to
-end — accompanied by a prominent warning, because mockup embeddings carry
-no biometric meaning and the resulting numbers are placeholders. The seven
-open-source models reproduce the corresponding paper results exactly. To
-evaluate the real proprietary models, obtain them from
-[Innovatrics](https://www.innovatrics.com) and place the ONNX files under
-`models/proprietary/`.
+**are not distributed** with this repository. The pipeline expects them as
+
+```text
+models/proprietary/inno-fast.onnx
+models/proprietary/inno-balanced.onnx
+models/proprietary/inno-accurate.onnx
+```
+
+(the directory can be changed with `FACE1KB_PROPRIETARY_MODELS`); each
+takes a 112×112 BGR face crop scaled to [-1, 1] as input `input.1` of
+shape (1, 3, 112, 112) and returns a 512-D embedding. For every missing
+file the pipeline prints a prominent warning and substitutes a small
+deterministic **mockup ONNX model** with the identical interface, one per
+model with its own seed (`models/mockup/<name>_mockup_512d.onnx`, see
+`face1kb/embeddings/make_mockup_model.py`), so every stage runs end to end.
+Mockup embeddings carry **no biometric meaning**, so without the real
+models:
+
+- the three proprietary rows of every result table are placeholders and
+  do not match the paper;
+- every statistic that includes them does not match the paper either: the
+  ten-model and proprietary-only means (Figs. 4-5, Table 3) and the
+  Friedman / Wilcoxon-Holm / Cliff's δ tests of `statistical_tests`, which
+  treat each model as a block;
+- the seven open-source models are unaffected and reproduce the
+  corresponding paper results.
+
+To evaluate the real proprietary models, obtain them from
+[Innovatrics](https://www.innovatrics.com) and place the ONNX files at the
+paths above.
 
 ## Visual comparison
 

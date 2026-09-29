@@ -55,8 +55,9 @@ statistical tests — and explains how to obtain the aligned dataset
    conditions, cross-age pairs, the compressed-to-compressed protocol and
    two additional state-of-the-art models.
 
-The pipeline in this repository covers findings 1–4 (subject to the
-proprietary-model caveat below); the human study (5) and the robustness
+The pipeline in this repository covers findings 1–4 — the size-compliant
+analysis of finding 1 is `face1kb.metrics.compliant_subset` — subject to
+the proprietary-model caveat below; the human study (5) and the robustness
 analyses (6) are not part of this code release.
 
 <p align="center">
@@ -95,6 +96,7 @@ face1kb/                      Evaluation pipeline (Python package)
     ├── compute_image_quality.py  SSIM + LPIPS (Table 5)
     ├── collect_file_sizes.py     Size stats & compliance (Fig. 3)
     ├── measure_speed.py          Codec speed (Table 2)
+    ├── compliant_subset.py       Size-compliant subsets (Sec. 3.4)
     └── statistical_tests.py      Friedman, Wilcoxon-Holm, Cliff's δ (Sec. 3.4, Table 3)
 
 tools/build_hf_dataset.py     Script that built the HuggingFace dataset
@@ -159,10 +161,17 @@ External requirements:
 ./run_all.sh
 ```
 
-Runs the nine stages listed in the script header for both resolutions and
-writes all tables to `outputs/metrics/`. Expect the full run to take on the
-order of a day on a single-GPU machine (JPEG-AI encoding and 10 × 7
-embedding extractions dominate). Every stage is resumable and can be run
+Runs the ten stages listed in the script header for both resolutions (the
+size-compliant subsets at 224×224 only) and writes all tables to
+`outputs/metrics/`. Expect the full run to take on the order of a day on a
+single-GPU machine (JPEG-AI encoding and 10 × 7 embedding extractions
+dominate). Download, compression, decoding and embedding extraction skip
+outputs that already exist (`run_all.sh` passes `--skip-existing`), so an
+interrupted run can be restarted; the metric stages recompute their tables
+from the stored bitstreams and embeddings. The size-compliant analysis
+takes about as long as the accuracy stage, since its relaxed subset covers
+most pairs; `--subsets intersection relaxed per_codec` adds each codec's
+own compliant subset for reference. Every stage can also be run
 individually:
 
 | Stage | Command |
@@ -178,6 +187,7 @@ individually:
 | File sizes | `python -m face1kb.metrics.collect_file_sizes --resolution 112` |
 | Speed | `python -m face1kb.metrics.measure_speed --resolution 112` |
 | Statistics | `python -m face1kb.metrics.statistical_tests --resolution 112` |
+| Size-compliant subsets | `python -m face1kb.metrics.compliant_subset --resolution 224` |
 
 All paths default to `data/` and `outputs/` inside the checkout and can be
 redirected with environment variables (`FACE1KB_DATA_ROOT`,
@@ -209,8 +219,8 @@ models:
   do not match the paper;
 - every statistic that includes them does not match the paper either: the
   ten-model and proprietary-only means (Figs. 4-5, Table 3) and the
-  Friedman / Wilcoxon-Holm / Cliff's δ tests of `statistical_tests`, which
-  treat each model as a block;
+  Friedman / Wilcoxon-Holm / Cliff's δ tests of `statistical_tests` and
+  `compliant_subset`, which treat each model as a block;
 - the seven open-source models are unaffected and reproduce the
   corresponding paper results.
 
@@ -260,6 +270,14 @@ paper, the difference is listed here.
   - JPEG-AI encoding does not write the reconstruction (`-r`), which the
     paper's encode timing included, and its decoding also reads the decoded
     PNG back into an array.
+- **Size-compliant subset (Sec. 3.4).** With the real proprietary models,
+  `face1kb.metrics.compliant_subset` reports Kendall's W = 0.69 on the
+  224×224 intersection subset, computed as χ²/(n(k−1)) with n = 10 models
+  and k = 5 codecs as in `statistical_tests`; the paper prints W = 0.35 for
+  the same χ² = 27.6. Its Cliff's δ values of JPEG-AI against the four
+  other codecs range from −0.08 (JPEG-FzT) to −0.24 (JPEG) (listed with the
+  opposite sign in the report, where JPEG-AI is codec B); the paper prints
+  −0.10 to −0.24.
 - **Visual comparison (224×224 panel of Fig. 6, figure under
   [Visual comparison](#visual-comparison)).** The figure was not produced
   by `face1kb.compression.codecs` and differs from its output for the same

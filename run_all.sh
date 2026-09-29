@@ -10,7 +10,9 @@
 #   6. compute verification accuracy (EER, FRR at FAR operating points),
 #   7. compute image quality (SSIM, LPIPS),
 #   8. collect file sizes and measure codec speed,
-#   9. run the statistical significance tests.
+#   9. run the statistical significance tests,
+#  10. evaluate accuracy on the size-compliant image subsets (224 px only:
+#      at 112 px every codec meets the budget for every image).
 #
 # Configuration via environment variables:
 #   RESOLUTIONS  - resolutions to process (default: "112 224")
@@ -40,22 +42,22 @@ banner() {
     echo "======================================================================"
 }
 
-banner "1/9 Download aligned dataset"
+banner "1/10 Download aligned dataset"
 $PY -m face1kb.data.download_dataset
 
-banner "2/9 Verification-pair statistics"
+banner "2/10 Verification-pair statistics"
 $PY -m face1kb.data.define_pairs
 
 for RES in $RESOLUTIONS; do
-    banner "3/9 Compress all images (${RES}px, 1 kB budget)"
+    banner "3/10 Compress all images (${RES}px, 1 kB budget)"
     $PY -m face1kb.compression.compress_dataset \
         --resolution "$RES" --skip-existing
 
-    banner "4/9 Decode bitstreams to PNG (${RES}px)"
+    banner "4/10 Decode bitstreams to PNG (${RES}px)"
     $PY -m face1kb.compression.decompress_dataset \
         --resolution "$RES" --skip-existing
 
-    banner "5/9 Embeddings (${RES}px)"
+    banner "5/10 Embeddings (${RES}px)"
     $PY -m face1kb.embeddings.compute_embeddings \
         --resolution "$RES" --source original --skip-existing
     $PY -m face1kb.embeddings.compute_embeddings_proprietary \
@@ -69,18 +71,23 @@ for RES in $RESOLUTIONS; do
         fi
     done
 
-    banner "6/9 Verification accuracy (${RES}px)"
+    banner "6/10 Verification accuracy (${RES}px)"
     $PY -m face1kb.metrics.compute_accuracy --resolution "$RES"
 
-    banner "7/9 Image quality: SSIM + LPIPS (${RES}px)"
+    banner "7/10 Image quality: SSIM + LPIPS (${RES}px)"
     $PY -m face1kb.metrics.compute_image_quality --resolution "$RES"
 
-    banner "8/9 File sizes and codec speed (${RES}px)"
+    banner "8/10 File sizes and codec speed (${RES}px)"
     $PY -m face1kb.metrics.collect_file_sizes --resolution "$RES"
     $PY -m face1kb.metrics.measure_speed --resolution "$RES"
 
-    banner "9/9 Statistical tests (${RES}px)"
+    banner "9/10 Statistical tests (${RES}px)"
     $PY -m face1kb.metrics.statistical_tests --resolution "$RES"
+
+    if [ "$RES" = 224 ]; then
+        banner "10/10 Size-compliant subsets (${RES}px)"
+        $PY -m face1kb.metrics.compliant_subset --resolution "$RES"
+    fi
 done
 
 banner "Pipeline finished - see outputs/metrics/"

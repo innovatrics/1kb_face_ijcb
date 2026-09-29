@@ -2,7 +2,8 @@
 
 For every codec at the given resolution the script reports mean/median/
 min/max bitstream size and the share of images that fit the 1024 B budget
-(the blue percentages of Figures 4 and 5 in the paper)::
+(Figure 3 of the paper; its blue percentages are the 224x224 shares, at
+112x112 every codec reaches 100 %)::
 
     outputs/metrics/file_sizes_<resolution>.csv
 

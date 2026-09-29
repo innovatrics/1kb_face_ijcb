@@ -22,20 +22,51 @@ statistical tests — and explains how to obtain the aligned dataset
 > face recognition models (seven open-source and three proprietary
 > configurations) at two resolutions (112×112 and 224×224 pixels). The
 > results indicate that JPEG-AI and WebP consistently yield the lowest
-> degradation of recognition across models and operating points. In
-> particular, JPEG-AI and JPEG-FzT are the only algorithms capable of
-> compressing all 224×224 images to the 1 kB target, making them uniquely
-> suitable for deployments requiring strict per-image size guarantee.
-> JPEG2000 exhibits the poorest performance under these conditions.
+> degradation of recognition across models and operating points; on the
+> size-compliant subset at 224×224 pixels, JPEG-AI is moreover
+> statistically superior to all remaining codecs. JPEG-AI and JPEG-FzT are
+> the only algorithms compressing all 224×224 images to the 1 kB target,
+> making them uniquely suitable when a strict per-image size guarantee is
+> required, whereas JPEG2000 performs poorest. The reported codec ranking
+> remains stable across demographic subgroups, acquisition conditions,
+> cross-age pairs, compressed-to-compressed matching, and two additional
+> state-of-the-art recognition models.
+
+### Key findings
+
+1. **JPEG-AI and WebP form a statistically indistinguishable top tier**,
+   with JPEG-AI stronger at the higher resolution and at the stricter FAR
+   operating points. On the **size-compliant 224×224 subset** — the 4,524
+   images (25.8 %) that all five non-JPEG2000 codecs compress to ≤ 1 kB —
+   JPEG-AI is statistically superior to all four other codecs
+   (Holm-corrected Wilcoxon tests), including WebP.
+2. **JPEG-AI and JPEG-FzT are the only codecs that compress every
+   224×224 image within the budget**, which suits deployments with a hard
+   per-image size ceiling.
+3. **JPEG2000 consistently performs worst** and meets the budget for no
+   224×224 image.
+4. Perceptual quality metrics (SSIM, LPIPS) correlate only partially with
+   biometric utility and should not serve as sole proxies for
+   recognition-preserving compression.
+5. Human verification accuracy is invariant to codec choice (p = 0.56),
+   confining the operational impact of codec selection to the automated
+   recognition stage.
+6. The codec ranking persists across demographic subgroups, acquisition
+   conditions, cross-age pairs, the compressed-to-compressed protocol and
+   two additional state-of-the-art models.
+
+The pipeline in this repository covers findings 1–4 (subject to the
+proprietary-model caveat below); the human study (5) and the robustness
+analyses (6) are not part of this code release.
 
 <p align="center">
   <img src="assets/verification_scheme.png" width="720"
        alt="Barcode-based biometric verification scheme"><br>
-  <em>The studied scenario: a facial photograph compressed to ≤ 1 kB is
-  signed into a QR code at enrollment (Phase 1), printed on the boarding
-  pass (Phase 2) and compared at the gate against a live capture
-  (Phase 3). This repository covers the "Compress", "1:1 Compare" and
-  "Decision" blocks.</em>
+  <em>The studied scenario (Figure 1 of the paper): a facial photograph is
+  captured, compressed to ≤ 1 kB and signed at enrollment (Phase 1),
+  encoded into a QR code on the boarding pass (Phase 2) and, at the gate,
+  decoded and compared against a live capture (Phase 3). This repository
+  covers the "Compress", "1:1 Compare" and "Decision" blocks.</em>
 </p>
 
 ## What is in this repository
@@ -60,11 +91,11 @@ face1kb/                      Evaluation pipeline (Python package)
 │   └── make_mockup_model.py              Deterministic mockup ONNX per model
 └── metrics/                  4) Metrics of the paper
     ├── verification.py       Pair scores, EER, FRR@FAR core
-    ├── compute_accuracy.py   Accuracy per model × codec (Sec. 3.3)
-    ├── compute_image_quality.py  SSIM + LPIPS (Table 4)
-    ├── collect_file_sizes.py     Size stats & compliance (Figs. 4-5)
-    ├── measure_speed.py          Codec speed (Tables 1-2)
-    └── statistical_tests.py      Friedman, Wilcoxon-Holm, Cliff's δ
+    ├── compute_accuracy.py   Accuracy per model × codec (Fig. 2; per-model FRR averaged in Figs. 4-5)
+    ├── compute_image_quality.py  SSIM + LPIPS (Table 5)
+    ├── collect_file_sizes.py     Size stats & compliance (Fig. 3)
+    ├── measure_speed.py          Codec speed (Table 2)
+    └── statistical_tests.py      Friedman, Wilcoxon-Holm, Cliff's δ (Sec. 3.4, Table 3)
 
 tools/build_hf_dataset.py     Script that built the HuggingFace dataset
 docs/JPEG_AI.md               How to obtain & configure JPEG-AI
@@ -189,9 +220,12 @@ paths above.
 
 ## Visual comparison
 
-All six codecs at the 1 kB budget, 224×224 input (Figure 10 of the paper;
-the label above each image gives the achieved file size and quality
-parameter):
+All six codecs at the 1 kB budget for five 224×224 inputs; the third row
+is the 224×224 panel of Figure 6 of the paper. The label above each image
+gives the file size, the quality parameter and the MSE of the illustrated
+bitstream. Some labels and bitstreams differ from what
+`face1kb.compression.codecs` produces for the same inputs; see
+[Differences from the paper](#differences-from-the-paper).
 
 ![Visual comparison of the six codecs at 1 kB](assets/visual_comparison_224.png)
 
@@ -226,11 +260,27 @@ paper, the difference is listed here.
   - JPEG-AI encoding does not write the reconstruction (`-r`), which the
     paper's encode timing included, and its decoding also reads the decoded
     PNG back into an array.
+- **Visual comparison (224×224 panel of Fig. 6, figure under
+  [Visual comparison](#visual-comparison)).** The figure was not produced
+  by `face1kb.compression.codecs` and differs from its output for the same
+  images in two respects:
+  - over-budget images are labelled with the search counter after its last
+    step (JPEG-XL `q:0`, WebP `q:-1`, JPEG2000 `q:100`), while their
+    bitstreams were encoded at the last setting of the search, which is
+    what `codecs` returns: JPEG-XL 6 (the lowest setting of the search that
+    libjxl 0.7 accepts), WebP 1 and JPEG2000 98;
+  - the JPEG column shows odd qualities (`q:3`, `q:1`), which the JPEG
+    search (40, 38, ..., 2) never selects; `codecs` returns quality 4 or 2
+    for these inputs, which are also the evaluated bitstreams (e.g. 1022 B
+    at quality 4 instead of 896 B at quality 3 in the third row). Likewise
+    the JPEG-AI image of the last row (`q:15`, 896 B) differs from the
+    evaluated bitstream (14, 846 B).
 
 ## Citation
 
 ```bibtex
 @inproceedings{face1kb2026,
+  author    = {Hurtik, Petr and {\v{S}}tevuli{\'a}kov{\'a}, Petra},
   title     = {Face Recognition at One Kilobyte: Evaluating Image
                Compression Algorithms for Barcode-Constrained Biometric
                Verification},

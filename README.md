@@ -221,8 +221,9 @@ models:
   ten-model and proprietary-only means (Figs. 4-5, Table 3) and the
   Friedman / Wilcoxon-Holm / Cliff's δ tests of `statistical_tests` and
   `compliant_subset`, which treat each model as a block;
-- the seven open-source models are unaffected and reproduce the
-  corresponding paper results.
+- the seven open-source models are unaffected by the mockups; see
+  [Differences from the paper](#differences-from-the-paper) for the
+  112×112 bitstreams of three codecs.
 
 To evaluate the real proprietary models, obtain them from
 [Innovatrics](https://www.innovatrics.com) and place the ONNX files at the
@@ -293,6 +294,16 @@ paper, the difference is listed here.
     at quality 4 instead of 896 B at quality 3 in the third row). Likewise
     the JPEG-AI image of the last row (`q:15`, 896 B) differs from the
     evaluated bitstream (14, 846 B).
+
+- **112×112 bitstreams of JPEG, JPEG2000 and JPEG-FzT.** The paper's
+  112×112 files of these three codecs were produced by an earlier revision
+  of the quality search: they use odd JPEG qualities (e.g. 15, 13, 9),
+  JPEG2000 ratio 38 and JPEG-FzT qualities 62-68, which the current search
+  grids (JPEG 40, 38, ..., 2; JPEG2000 from ratio 80; JPEG-FzT up to 51) do
+  not visit. `face1kb.compression.codecs` therefore produces different
+  bitstreams for these codecs at 112×112, and the corresponding 112×112
+  rows, means and tests differ from the paper. The 224×224 results, and
+  WebP, JPEG-XL and JPEG-AI at both sizes, are reproduced.
 
 ## Citation
 

@@ -8,8 +8,8 @@ The compressed bitstream is written to *out_path*. Since none of the codecs
 accepts a target file size directly, the paper's recursive search is used:
 start at maximum acceptable quality and decrease it until the bitstream fits
 *max_size_bytes* (JPEG-AI uses bisection over the target bitrate instead).
-When even the lowest setting does not fit, the smallest achievable bitstream
-is kept - such images are retained in the evaluation (see Sec. 2.5 of the
+When even the last setting of the search grid does not fit, the bitstream of
+that last setting is kept - such images are retained in the evaluation (see Sec. 2.5 of the
 paper).
 
 Return value

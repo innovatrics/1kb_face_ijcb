@@ -28,7 +28,8 @@ setting of the search:
   lowest accepted setting (6 with libjxl 0.7),
 - JPEG-FzT: JPEG quality of the F-transform stage 51, 49, ..., 1 (1 on a
   miss),
-- JPEG-AI: target bpp x 100, bisected within 10-30; on a miss the image is
+- JPEG-AI: target bpp x 100, bisected within 2-50 for 112x112 px and 10-30
+  for 224x224 px inputs (:data:`JPEG_AI_BPP_RANGES`); on a miss the image is
   encoded at 1 (0.01 bpp) and 1 is returned.
 
 JPEG, JPEG2000 and WebP are produced with Pillow; JPEG-XL with the ``cjxl``
@@ -47,6 +48,11 @@ from PIL import Image
 from face1kb.compression import jpeg_ai, jpeg_fzt
 
 CJXL_AVAILABLE = shutil.which("cjxl") is not None
+
+#: Bisection range of the JPEG-AI target bitrate (bpp x 100) per input width,
+#: the ranges that produced the paper's bitstreams; other widths use the
+#: 224 px range.
+JPEG_AI_BPP_RANGES = {112: (2, 50), 224: (10, 30)}
 
 
 def compress_jpeg(
@@ -150,14 +156,17 @@ def compress_jpeg_ai(
 
     Uses the reference-software encoder in the High Operating Point profile;
     the ``--set_target_bpp`` parameter (bpp x 100) is searched via bisection
-    for the highest bitrate whose bitstream fits *max_size_bytes*. When even
-    the lowest searched bitrate does not fit, the image is encoded at 1
-    (0.01 bpp) and 1 is returned.
+    within :data:`JPEG_AI_BPP_RANGES` for the highest bitrate whose bitstream
+    fits *max_size_bytes*. When even the lowest searched bitrate does not
+    fit, the image is encoded at 1 (0.01 bpp) and 1 is returned.
     """
+    bpp_range = JPEG_AI_BPP_RANGES.get(image.width, JPEG_AI_BPP_RANGES[224])
     with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
         image.save(tmp.name, "PNG")
 
-        result = jpeg_ai.find_max_bpp_within(tmp.name, out_path, max_size_bytes)
+        result = jpeg_ai.find_max_bpp_within(
+            tmp.name, out_path, max_size_bytes, bpp_range
+        )
         if result is not None:
             best_bpp, _ = result
             out_path.unlink(missing_ok=True)

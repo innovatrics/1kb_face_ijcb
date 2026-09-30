@@ -71,7 +71,7 @@ through git-lfs. Step 5 builds the same libraries as the upstream
 environment and takes the file-name suffix from `python3-config`; passing
 `PYTHON_SUFFIX` makes the build independent of both. With these steps
 (Python 3.11, PyTorch 2.10, NumPy 2.4) the pipeline reproduces the paper's
-224×224 JPEG-AI bitstreams byte for byte.
+JPEG-AI bitstreams at both resolutions byte for byte.
 
 A CUDA-capable GPU is strongly recommended: encoding runs per image and is
 considerably slower on CPU (Table 2 of the paper: about 1.6 s on the GPU vs
@@ -132,8 +132,9 @@ model weights are loaded only once per run, then calls them with:
   chain corresponds to the plain HOP configuration.
 - `--set_target_bpp` takes the target bits-per-pixel multiplied by 100.
   Because the encoder does not accept a target file size, the pipeline
-  bisects this parameter (range 0.10-0.30 bpp) for the highest bitrate
-  whose bitstream fits the 1024 B budget
+  bisects this parameter (0.02-0.50 bpp for 112×112 and 0.10-0.30 bpp for
+  224×224 inputs, `JPEG_AI_BPP_RANGES` in `face1kb.compression.codecs`) for
+  the highest bitrate whose bitstream fits the 1024 B budget
   (`find_max_bpp_within` in the wrapper). When even the lowest candidate
   does not fit, the image is encoded at `--set_target_bpp 1` (0.01 bpp)
   and retained (paper Sec. 2.5).

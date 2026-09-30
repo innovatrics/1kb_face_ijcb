@@ -1,325 +1,303 @@
-# Face Recognition at One Kilobyte
+# face1kb: identity-preserving face compression under 1 kB
 
-**Evaluating Image Compression Algorithms for Barcode-Constrained Biometric
-Verification**
+**Two learned face codecs that fit an aligned face crop into at most 1024 (or 512)
+bytes and keep it verifiable by face recognition, together with the complete benchmark
+of the extended study.**
 
-This repository is the supplementary material for our paper **accepted at
-the IEEE International Joint Conference on Biometrics (IJCB) 2026**. It
-contains the code needed to replicate the paper's automated evaluation —
-data preparation, compression, embedding extraction, metric computation and
-statistical tests — and explains how to obtain the aligned dataset
-(available on request).
+[![arXiv](https://img.shields.io/badge/arXiv-2608.22866-b31b1b.svg)](https://arxiv.org/abs/2608.22866)
+[![IJCB 2026](https://img.shields.io/badge/IJCB-2026-1f6feb.svg)](#ijcb-2026-version)
+[![Code licence: MIT](https://img.shields.io/badge/code-MIT-green.svg)](LICENSE)
+[![Weights licence: CC BY-NC-SA 4.0](https://img.shields.io/badge/weights-CC%20BY--NC--SA%204.0-lightgrey.svg)](weights/LICENSE)
 
-> 📄 **Paper:** arXiv link coming soon.
+This repository accompanies **"Toward Sub-1 kB Identity-Preserving Face Compression"**
+(Petr Hurtik, Jakub Sochor; [arXiv:2608.22866](https://arxiv.org/abs/2608.22866)).
+It releases:
 
-## Abstract
+- **face1kb-FAST** and **face1kb-ACCURATE**, called *Ours-FAST* and *Ours-ACCURATE* in
+  the paper and in the result files. They are variable-rate learned codecs with a
+  **hard byte budget**: in the default mode `len(codec.encode(img, budget)) <= budget`
+  holds for every image. The weights are in [`weights/`](weights/README.md).
+- The code that reproduces every section of the paper: the benchmark of ten baseline
+  codecs on 14 public face-recognition models, image quality, speed, fairness,
+  recompression, preprocessing, resolution, sample difficulty, adversarial
+  sanitization, the ISO/IEC 29794-5 annex study and significance tests.
+- The aggregate results behind the paper's tables and figures
+  ([`results/`](results/README.md)). The paper's data tables can be rebuilt from them
+  on a CPU, without any data.
 
-> Barcode-based biometric credentials, such as ICAO Digital Travel
-> Credentials, require facial photographs to be compressed to approximately
-> one kilobyte, posing significant challenges for automated face
-> recognition. This paper systematically evaluates six lossy compression
-> algorithms (JPEG, JPEG2000, JPEG-AI, JPEG-FzT, JPEG-XL, and WebP) on ten
-> face recognition models (seven open-source and three proprietary
-> configurations) at two resolutions (112×112 and 224×224 pixels). The
-> results indicate that JPEG-AI and WebP consistently yield the lowest
-> degradation of recognition across models and operating points; on the
-> size-compliant subset at 224×224 pixels, JPEG-AI is moreover
-> statistically superior to all remaining codecs. JPEG-AI and JPEG-FzT are
-> the only algorithms compressing all 224×224 images to the 1 kB target,
-> making them uniquely suitable when a strict per-image size guarantee is
-> required, whereas JPEG2000 performs poorest. The reported codec ranking
-> remains stable across demographic subgroups, acquisition conditions,
-> cross-age pairs, compressed-to-compressed matching, and two additional
-> state-of-the-art recognition models.
-
-### Key findings
-
-1. **JPEG-AI and WebP form a statistically indistinguishable top tier**,
-   with JPEG-AI stronger at the higher resolution and at the stricter FAR
-   operating points. On the **size-compliant 224×224 subset** — the 4,524
-   images (25.8 %) that all five non-JPEG2000 codecs compress to ≤ 1 kB —
-   JPEG-AI is statistically superior to all four other codecs
-   (Holm-corrected Wilcoxon tests), including WebP.
-2. **JPEG-AI and JPEG-FzT are the only codecs that compress every
-   224×224 image within the budget**, which suits deployments with a hard
-   per-image size ceiling.
-3. **JPEG2000 consistently performs worst** and meets the budget for no
-   224×224 image.
-4. Perceptual quality metrics (SSIM, LPIPS) correlate only partially with
-   biometric utility and should not serve as sole proxies for
-   recognition-preserving compression.
-5. Human verification accuracy is invariant to codec choice (p = 0.56),
-   confining the operational impact of codec selection to the automated
-   recognition stage.
-6. The codec ranking persists across demographic subgroups, acquisition
-   conditions, cross-age pairs, the compressed-to-compressed protocol and
-   two additional state-of-the-art models.
-
-The pipeline in this repository covers findings 1–4 — the size-compliant
-analysis of finding 1 is `face1kb.metrics.compliant_subset` — subject to
-the proprietary-model caveat below; the human study (5) and the robustness
-analyses (6) are not part of this code release.
+The study targets face images stored in 2D barcodes, such as a signed QR code on a
+boarding pass or a travel credential, where the face must fit into about one kilobyte:
 
 <p align="center">
-  <img src="assets/verification_scheme.png" width="720"
-       alt="Barcode-based biometric verification scheme"><br>
-  <em>The studied scenario (Figure 1 of the paper): a facial photograph is
-  captured, compressed to ≤ 1 kB and signed at enrollment (Phase 1),
-  encoded into a QR code on the boarding pass (Phase 2) and, at the gate,
-  decoded and compared against a live capture (Phase 3). This repository
-  covers the "Compress", "1:1 Compare" and "Decision" blocks.</em>
+  <img src="assets/verification_scheme.png" width="640"
+       alt="Enrollment, issuance and verification of a barcode-stored face image">
 </p>
 
-## What is in this repository
+The earlier conference version, **"Face Recognition at One Kilobyte"** (IJCB 2026),
+remains available under the git tag [`ijcb2026`](#ijcb-2026-version).
 
-```text
-face1kb/                      Evaluation pipeline (Python package)
-├── config.py                 Central paths & constants (env-overridable)
-├── data/                     1) Data preparation
-│   ├── download_dataset.py   Fetch aligned crops from HuggingFace (on request)
-│   ├── pairs.py              Canonical verification-pair protocol
-│   └── define_pairs.py       Pair statistics / optional CSV export
-├── compression/              2) Compression to the 1 kB budget
-│   ├── codecs.py             Target-size search for all six codecs
-│   ├── jpeg_fzt.py           JPEG-FzT codec (F-transform + JPEG)
-│   ├── jpeg_ai.py            JPEG-AI reference-software wrapper
-│   ├── compress_dataset.py   Compress every image with every codec
-│   ├── decode.py             Bitstream → RGB for any codec
-│   └── decompress_dataset.py Decode all bitstreams to PNG once
-├── embeddings/               3) Face-embedding extraction
-│   ├── compute_embeddings.py             7 open-source models (DeepFace)
-│   ├── compute_embeddings_proprietary.py 3 proprietary models / mockup
-│   └── make_mockup_model.py              Deterministic mockup ONNX per model
-└── metrics/                  4) Metrics of the paper
-    ├── verification.py       Pair scores, EER, FRR@FAR core
-    ├── compute_accuracy.py   Accuracy per model × codec (Fig. 2; per-model FRR averaged in Figs. 4-5)
-    ├── compute_image_quality.py  SSIM + LPIPS (Table 5)
-    ├── collect_file_sizes.py     Size stats & compliance (Fig. 3)
-    ├── measure_speed.py          Codec speed (Table 2)
-    ├── compliant_subset.py       Size-compliant subsets (Sec. 3.4)
-    └── statistical_tests.py      Friedman, Wilcoxon-Holm, Cliff's δ (Sec. 3.4, Table 3)
+## The two codecs
 
-tools/build_hf_dataset.py     Script that built the HuggingFace dataset
-docs/JPEG_AI.md               How to obtain & configure JPEG-AI
-docs/jpeg-ai-compat.patch     Compatibility changes for that checkout
-setup_env.sh                  Environment preparation
-run_all.sh                    Complete pipeline, end to end
-```
+Both codecs extend CompressAI's variable-rate mean-scale hyperprior. A third
+hyper-downsample shrinks the hyperprior byte floor, and the synthesis uses ResizeConv
+upsampling with FiLM conditioning on gain and resolution. One model per variant covers
+all rates. **ACCURATE** is wider, adds attention, and adds an identity side-stream
+computed from a frozen EdgeFace-S model together with a refinement head. **FAST** runs
+no face-recognition model at inference time.
 
-## Dataset
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/training_dark.svg">
+    <img src="assets/training_light.svg" width="880"
+         alt="Training scheme: per-step crop, resolution bucket and gain level; analysis, quantisation, hyperprior, FiLM-conditioned synthesis; ACCURATE side-stream with a frozen EdgeFace-S anchor and a refine head; rate, distortion and identity losses; three-phase identity schedule">
+  </picture>
+</p>
 
-The evaluation uses the publicly available, MIT-licensed
-[AI-Solutions-KK/face_recognition_dataset](https://huggingface.co/datasets/AI-Solutions-KK/face_recognition_dataset)
-(105 identities, 17,534 images). The images were preprocessed with a
-proprietary face detector and ArcFace-style five-landmark alignment; since
-that step is not reproducible without proprietary tooling, we provide the
-**aligned crops** used in the paper as a HuggingFace dataset:
+At encode time, a binary search over a frozen 64-entry gain table measures the **real**
+rANS output until it finds the largest gain that fits. The result is packed into a
+self-describing container with 7 bytes of fixed overhead:
 
-- **Dataset id:** `Cha53c/1kb-face-aligned` — a single split holding both
-  crop resolutions (image, identity, file name, resolution); the
-  `resolution` column (112 or 224) selects a resolution.
-- **Access:** the dataset is private and **available on request** from the
-  authors; contact details are in the paper. Access is granted to a
-  HuggingFace account.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/inference_dark.svg">
+    <img src="assets/inference_light.svg" width="880"
+         alt="Inference scheme: aligned crop, budget search over the 64-entry gain table with real rANS byte counts, container layout with a 7-byte header, overflow policies and the decode path">
+  </picture>
+</p>
 
-Once access has been granted, authenticate and download:
+| | face1kb-FAST | face1kb-ACCURATE |
+|---|---|---|
+| Name in the paper | Ours-FAST | Ours-ACCURATE |
+| Parameters | 1,352,021 (1.35 M) | 18,712,400 (18.7 M), of which 3,652,520 are the frozen EdgeFace-S anchor |
+| Weight file | 5.4 MB | 74.9 MB |
+| Channels N / M / N<sub>z</sub>, attention | 64 / 96 / 48, none | 192 / 320 / 64, 2 + 2 blocks |
+| Face-recognition model at inference | none | EdgeFace-S inside the encoder |
+| Encode, including the rate search, RTX 2080 Ti | 129-148 ms | 343-412 ms |
+| Decode, RTX 2080 Ti | 22-28 ms | 34-46 ms |
+| Training | 1M steps | 3M steps |
 
-```bash
-hf auth login        # or export HF_TOKEN=<your token>
-                     # (older huggingface_hub: huggingface-cli login)
-python -m face1kb.data.download_dataset
-```
+Times are medians per crop over all five resolutions and both budgets, with a warm
+entropy-coder cache ([docs/codec.md](docs/codec.md#performance)). Table `tab:speed` in
+the paper times a single encode at the budget-fitting gain, without the search: at
+112 px / 1024 B on the GPU, FAST takes 22.4 ms to encode and 22.9 ms to decode, and
+ACCURATE takes 54.0 ms and 63.1 ms.
 
-The script exports the crops to `data/aligned_<resolution>/` and writes the
-canonical image list `data/names.csv`. Verification uses all non-redundant
-image pairs — 1.52 M mated and 152.2 M non-mated — formed directly from the
-identity labels (see `face1kb/data/pairs.py`).
+**Headline results** at the 112 px working resolution, quoted from the arXiv tables
+(table labels in brackets). WebP is the best classical codec in every column of these
+tables. The best value of each row is in bold.
 
-## Getting started
+| Metric (paper table) | Dataset, budget | Ours-ACCURATE | Ours-FAST | JPEG-AI | WebP |
+|---|---|---:|---:|---:|---:|
+| FNMR (%) at FMR = 10<sup>-4</sup>, mean of ArcFace and LVFace-L, lower is better (`tab:frr-summary`) | Color FERET, 1024 B | 1.26 | 3.82 | **1.00** | 1.06 |
+| | Color FERET, 512 B | **1.83** | 6.65 | 2.86 | 6.01 |
+| | AI-Solutions-KK, 1024 B | 2.93 | 10.55 | **2.92** | 3.98 |
+| | AI-Solutions-KK, 512 B | **6.93** | 24.30 | 9.64 | 24.28 |
+| EER (%) on the held-out CVLface IR-101 matcher, lower is better (`tab:heldout-cvlface`) | Color FERET, 1024 B | 0.05 | 0.15 | 0.03 | **0.03** |
+| | Color FERET, 512 B | **0.08** | 0.32 | 0.13 | 0.23 |
+| | AI-Solutions-KK, 1024 B | **0.51** | 1.21 | 0.52 | 0.66 |
+| | AI-Solutions-KK, 512 B | **0.92** | 2.40 | 1.25 | 2.55 |
+| Worst-5 % identity cosine (ArcFace p5), higher is better (`tab:idcos-tail`) | Color FERET, 512 B | **0.802** | 0.636 | 0.742 | 0.597 |
+| | AI-Solutions-KK, 512 B | **0.763** | 0.591 | 0.680 | 0.581 |
+
+At 1024 B, JPEG-AI and ACCURATE are close. At 512 B, ACCURATE is the most robust
+codec on these public matchers. At the 224 px source resolution, JPEG-AI is above
+Ours-ACCURATE in median identity cosine in all four dataset/budget cells
+(`tab:codec-results`; measured with a proprietary matcher on 64 crops per cell, so the
+public code cannot regenerate these values). The paper also reports other matchers,
+resolutions and metrics.
+
+**What to know before using the codecs** (details in
+[docs/codec.md](docs/codec.md#limitations)):
+
+- **Budget guarantee.** In the default mode the container never exceeds the budget.
+  If even the lowest gain does not fit, the encoder emits a tiny identity-only
+  container that decodes to a black frame, and issues an `IdentityOnlyWarning`. This
+  happens for FAST at 168 and 224 px with 512 B on many in-the-wild faces, and never
+  at 64 or 112 px. `paper_compat=True` reproduces the paper bitstreams byte for byte.
+  That includes the paper's budget accounting, which ignores the 4-byte geometry
+  trailer at 96 and 168 px.
+- **The ACCURATE identity side-channel is a constant 8 bytes in practice.** With the
+  released weights, the projection of the side-stream has collapsed. The stored code
+  is the same 8 bytes for every image, so it acts as a fixed learned conditioning of
+  the decoder. The paper text describes it as about 90-175 B
+  ([docs/errata.md](docs/errata.md)).
+- **Bitstreams are device-specific.** The entropy-coder tables are rebuilt at run
+  time. Streams are portable only between CUDA devices with the same software stack,
+  and CUDA-encoded streams do not decode on a CPU. Byte-exactness was verified on an
+  RTX 2080 Ti with torch 2.10.0 / CUDA 12.8, compressai 1.2.8 and timm 1.0.24.
+- **Inputs** are square RGB crops aligned to the ArcFace five-point template. The
+  codecs were trained at 64-256 px and evaluated at 64-224 px.
+- **Privacy.** A container encodes the face itself. Protect it like any face image.
+
+## Quick start
 
 ```bash
 git clone https://github.com/innovatrics/1kb_face_ijcb.git
 cd 1kb_face_ijcb
-./setup_env.sh              # venv + Python deps; add --with-jpeg-ai to
-                            # also clone the JPEG-AI reference software
-source .venv/bin/activate
+git lfs install && git lfs pull   # fetch the weights; without this, weights/*.safetensors are pointer files
+pip install -e .                  # the codecs: torch < 2.11, compressai 1.2.8, timm 1.0.24
 ```
 
-External requirements:
+`scripts/setup_env.sh` creates a virtual environment with all extras. `--paper`
+installs the exact package versions of the paper (`requirements/paper.txt`), and
+`--core` installs only the codecs.
 
-- access to the aligned dataset (on request, see [Dataset](#dataset)) and
-  a HuggingFace login,
-- `cjxl`/`djxl` for JPEG XL (`sudo apt install libjxl-tools`),
-- the JPEG-AI reference software for the `jpeg_ai` codec — **see
-  [docs/JPEG_AI.md](docs/JPEG_AI.md)**; without it the pipeline runs with
-  the remaining five codecs,
-- a CUDA GPU is recommended (JPEG-AI and embedding extraction).
+```python
+import numpy as np, face1kb
+from PIL import Image
+img = np.asarray(Image.open("face_112.png").convert("RGB"))  # aligned square crop, uint8
+codec = face1kb.load("accurate", device="cuda")               # or "fast"
+data = codec.encode(img, budget=1024)                         # bytes, len(data) <= 1024
+img_hat = codec.decode(data)                                  # 112 x 112 x 3 uint8
+```
 
-### Run everything
+`codec.encode(img, budget, return_info=True)` also returns the chosen rate index, the
+gain and the fit flags. `face1kb.decode(data)` decodes any container and reads the
+variant from its header.
+
+On the command line (also installed as `face1kb-codec`):
 
 ```bash
-./run_all.sh
+python -m face1kb.codec encode face.png --variant fast --budget 512   # -> face.f1k, prints a JSON record
+python -m face1kb.codec info face.f1k                                # header fields, no decoding
+python -m face1kb.codec decode face.f1k                              # -> face_decoded.png
 ```
 
-Runs the ten stages listed in the script header for both resolutions (the
-size-compliant subsets at 224×224 only) and writes all tables to
-`outputs/metrics/`. Expect the full run to take on the order of a day on a
-single-GPU machine (JPEG-AI encoding and 10 × 7 embedding extractions
-dominate). Download, compression, decoding and embedding extraction skip
-outputs that already exist (`run_all.sh` passes `--skip-existing`), so an
-interrupted run can be restarted; the metric stages recompute their tables
-from the stored bitstreams and embeddings. The size-compliant analysis
-takes about as long as the accuracy stage, since its relaxed subset covers
-most pairs; `--subsets intersection relaxed per_codec` adds each codec's
-own compliant subset for reference. Every stage can also be run
-individually:
+To train a codec on your own aligned crops, see [docs/training.md](docs/training.md).
+Training needs the `train` extra and one GPU.
 
-| Stage | Command |
-| --- | --- |
-| Download data | `python -m face1kb.data.download_dataset` |
-| Pair statistics | `python -m face1kb.data.define_pairs` |
-| Compress | `python -m face1kb.compression.compress_dataset --resolution 112` |
-| Decode | `python -m face1kb.compression.decompress_dataset --resolution 112` |
-| Embeddings (open-source) | `python -m face1kb.embeddings.compute_embeddings --resolution 112 --source jpeg_ai` |
-| Embeddings (proprietary) | `python -m face1kb.embeddings.compute_embeddings_proprietary --resolution 112 --source original` |
-| Accuracy | `python -m face1kb.metrics.compute_accuracy --resolution 112` |
-| Image quality | `python -m face1kb.metrics.compute_image_quality --resolution 112` |
-| File sizes | `python -m face1kb.metrics.collect_file_sizes --resolution 112` |
-| Speed | `python -m face1kb.metrics.measure_speed --resolution 112` |
-| Statistics | `python -m face1kb.metrics.statistical_tests --resolution 112` |
-| Size-compliant subsets | `python -m face1kb.metrics.compliant_subset --resolution 224` |
-
-All paths default to `data/` and `outputs/` inside the checkout and can be
-redirected with environment variables (`FACE1KB_DATA_ROOT`,
-`FACE1KB_OUTPUT_ROOT`, `JPEGAI_REPO_DIR`, ... — see `face1kb/config.py`).
-
-## ⚠️ Proprietary models are not included
-
-Three of the ten evaluated recognition models (`inno-fast`,
-`inno-balanced`, `inno-accurate`) are proprietary Innovatrics products and
-**are not distributed** with this repository. The pipeline expects them as
+## What's inside
 
 ```text
-models/proprietary/inno-fast.onnx
-models/proprietary/inno-balanced.onnx
-models/proprietary/inno-accurate.onnx
+face1kb/                  Python package (MIT)
+  codec/                  face1kb-FAST / -ACCURATE: networks, budget search, container, API, CLI, trainer
+  baselines/              the ten baseline codecs (JPEG, JPEG 2000, WebP, JPEG XL, AVIF, HEIF,
+                          JPEG-FzT, JPEG-AI, bmshj2018, mbt2018), budget search, unified decoder
+  fr/                     the 14 public face-recognition evaluators (pinned, fetched on demand)
+                          and hooks for your own matcher (register_onnx / register_torch)
+  data/                   index and pair builders, Color FERET NIST label parser, alignment
+                          template, crop variants, preprocessing operators, attributes
+  eval/                   verification (EER, FNMR at FMR, bootstrap CIs), significance,
+                          fairness, image-quality metrics
+  adversarial/            HFC, CLIP and Li-AE attacks, Li-AE proxy, sanitization metric
+  report/                 LaTeX table and matplotlib helpers
+  third_party/edgeface/   vendored EdgeFace backbone code (BSD-3-Clause)
+experiments/              one folder per paper area; each has a run.sh for the full-scale run
+  prepare/                     Sec. 3       datasets: index, pairs, labels, attributes, crop variants
+  compress/, speed/            Sec. 2, 4-6  compressed grid, budget compliance, codec properties, speed
+  embed/, accuracy/            Sec. 5, 7, 14  embeddings, EER/FNMR grid, held-out matcher, significance
+  quality/                     Sec. 6       PSNR/SSIM/MS-SSIM/LPIPS/DISTS, face image quality, montages
+  codec_comparison/            Sec. 5-7     rate-identity comparison, JPEG-AI operation points
+  difficulty/                  Sec. 8       trivial and difficult samples
+  resolution/, preprocessing/  Sec. 9       resolution trade-off, preprocessing, crop tightness
+  annex/                       Sec. 10      ISO/IEC 29794-5 Annex E/F study
+  fairness/                    Sec. 11      subgroup EER, disparity, differential FMR, CIs
+  recompression/               Sec. 12      compressed-on-compressed chains
+  adversarial/                 Sec. 13      attack crafting and sanitization
+  figures/                     summary figures, collection of results/
+results/                  aggregate paper results (CSV/JSON; no images, no per-image data)
+weights/                  released weights (git LFS), model card, CC BY-NC-SA 4.0 licence
+docs/                     documentation, see docs/README.md
+scripts/                  setup_env.sh, setup_jpegai.sh (JPEG-AI reference software), fetch_models.py
+third_party/              jpeg-ai.patch, applied by setup_jpegai.sh
+tests/                    unit tests (CPU); GPU and data tests are marked and skip without them
 ```
 
-(the directory can be changed with `FACE1KB_PROPRIETARY_MODELS`); each
-takes a 112×112 BGR face crop scaled to [-1, 1] as input `input.1` of
-shape (1, 3, 112, 112) and returns a 512-D embedding. For every missing
-file the pipeline prints a prominent warning and substitutes a small
-deterministic **mockup ONNX model** with the identical interface, one per
-model with its own seed (`models/mockup/<name>_mockup_512d.onnx`, see
-`face1kb/embeddings/make_mockup_model.py`), so every stage runs end to end.
-Mockup embeddings carry **no biometric meaning**, so without the real
-models:
+## Reproducing the paper
 
-- the three proprietary rows of every result table are placeholders and
-  do not match the paper;
-- every statistic that includes them does not match the paper either: the
-  ten-model and proprietary-only means (Figs. 4-5, Table 3) and the
-  Friedman / Wilcoxon-Holm / Cliff's δ tests of `statistical_tests` and
-  `compliant_subset`, which treat each model as a block;
-- the seven open-source models are unaffected by the mockups; see
-  [Differences from the paper](#differences-from-the-paper) for the
-  112×112 bitstreams of three codecs.
+[docs/reproduce.md](docs/reproduce.md) maps every section, table and figure of the
+paper to its commands and inputs. It also gives the GPU cost and says whether an item
+renders from the shipped `results/` or needs the datasets. In short:
 
-To evaluate the real proprietary models, obtain them from
-[Innovatrics](https://www.innovatrics.com) and place the ONNX files at the
-paths above.
+- **Without any data:** every data table of the paper except Table 4 (which needs the
+  NIST labels) and 24 of its figures render on a CPU from `results/`, for example with
+  `FROM_RESULTS=1 PAPER_HEADER=1 SKIP="1 2 3" bash experiments/accuracy/run.sh` and
+  `python experiments/figures/render_figures.py --from-results`. With the paper
+  environment most outputs are byte-identical to the arXiv sources. The few that are
+  not are listed in [docs/errata.md](docs/errata.md).
+- **Full reproduction** starts from aligned crops (see [Datasets](#datasets)) and runs
+  the `experiments/*/run.sh` scripts in order: prepare, compress, embed, accuracy, then
+  the other areas. The full grid takes several hundred GPU-hours, most of them for
+  JPEG-AI.
+- Where the text of the arXiv report differs from the code, the code is the
+  reference. Every confirmed difference is listed in the
+  [errata of arXiv:2608.22866 v1](docs/errata.md) (they concern the arXiv report,
+  not the IJCB paper, and will be fixed in its next version). For
+  example, the identity cosines of some tables were measured with a proprietary
+  matcher, and the public code cannot regenerate them.
 
-## Visual comparison
+## Datasets
 
-All six codecs at the 1 kB budget for five 224×224 inputs; the third row
-is the 224×224 panel of Figure 6 of the paper. The label above each image
-gives the file size, the quality parameter and the MSE of the illustrated
-bitstream. Some labels and bitstreams differ from what
-`face1kb.compression.codecs` produces for the same inputs; see
-[Differences from the paper](#differences-from-the-paper).
+No dataset is redistributed here. The public pipeline starts from **aligned face
+crops**: square crops warped onto the ArcFace five-point template at 64, 96, 112, 168
+and 224 px ([docs/datasets.md](docs/datasets.md)).
 
-![Visual comparison of the six codecs at 1 kB](assets/visual_comparison_224.png)
+- **AI-Solutions-KK**: the raw photographs (105 identities, 17,534 images) are the
+  public, MIT-licensed
+  [AI-Solutions-KK/face_recognition_dataset](https://huggingface.co/datasets/AI-Solutions-KK/face_recognition_dataset).
+  The aligned crops used in the paper are **available on request from the authors**:
+  open an issue on this repository ([issues](https://github.com/innovatrics/1kb_face_ijcb/issues)) to ask for them.
+- **Color FERET**: obtain it from [NIST](https://www.nist.gov/itl/products-and-services/color-feret-database)
+  under the NIST terms. The paper aligned NIST Color FERET to the ArcFace five-point
+  template at the resolutions above. `face1kb.data` includes a parser for the NIST
+  ground-truth labels, which the fairness study uses. Crops that you align yourself
+  give comparable, not identical, numbers.
 
-## Differences from the paper
+The repository contains no dataset images, per-image values or embeddings.
 
-Where the code deliberately does not reproduce a number printed in the
-paper, the difference is listed here.
+## IJCB 2026 version
 
-- **Codec speed (Table 2).** `face1kb.metrics.measure_speed` is a
-  lightweight approximation of the measurement behind Table 2, not a re-run
-  of it, so its numbers differ beyond the hardware dependence of any timing:
-  - it sweeps quality 1, 11, ..., 91 (paper: 0, 10, ..., 100, with 0 run as
-    1), so the slow quality-100 end is never measured; for JPEG-XL both use
-    `cjxl -q` of at least 5, the lowest value libjxl 0.7 accepts;
-  - JPEG-AI sweeps 0.10-0.30 bpp (`--set_target_bpp` 10, 14, ..., 30;
-    paper: 0.04-2.0 bpp, 4 ... 200 in 11 levels);
-  - it times 20 images per resolution by default (`--n-images`; paper:
-    100);
-  - it reports a single JPEG-AI row on the visible device
-    (`CUDA_VISIBLE_DEVICES=-1` selects the CPU; paper: separate GPU and CPU
-    rows) and does not restrict the CPU codecs to one thread (paper:
-    single-threaded on an Intel Xeon E5-2683; `taskset -c 0` approximates
-    that);
-  - it includes file I/O: every bitstream is written to and decoded from a
-    temporary file (paper: in-memory encoding and decoding for JPEG,
-    JPEG2000, WebP and JPEG-FzT);
-  - JPEG-FzT compression JPEG-encodes the F-transform stage twice
-    (`jpeg_fzt.compress_with_quality` already writes it once to measure its
-    size), and its decompression also includes JPEG decoding and reading the
-    inverse-basis weights (paper: a single encode, and the inverse
-    F-transform alone);
-  - JPEG-AI encoding does not write the reconstruction (`-r`), which the
-    paper's encode timing included, and its decoding also reads the decoded
-    PNG back into an array.
-- **Size-compliant subset (Sec. 3.4).** With the real proprietary models,
-  `face1kb.metrics.compliant_subset` reports Kendall's W = 0.69 on the
-  224×224 intersection subset, computed as χ²/(n(k−1)) with n = 10 models
-  and k = 5 codecs as in `statistical_tests`; the paper prints W = 0.35 for
-  the same χ² = 27.6. Its Cliff's δ values of JPEG-AI against the four
-  other codecs range from −0.08 (JPEG-FzT) to −0.24 (JPEG) (listed with the
-  opposite sign in the report, where JPEG-AI is codec B); the paper prints
-  −0.10 to −0.24.
-- **Visual comparison (224×224 panel of Fig. 6, figure under
-  [Visual comparison](#visual-comparison)).** The figure was not produced
-  by `face1kb.compression.codecs` and differs from its output for the same
-  images in two respects:
-  - over-budget images are labelled with the search counter after its last
-    step (JPEG-XL `q:0`, WebP `q:-1`, JPEG2000 `q:100`), while their
-    bitstreams were encoded at the last setting of the search, which is
-    what `codecs` returns: JPEG-XL 6 (the lowest setting of the search that
-    libjxl 0.7 accepts), WebP 1 and JPEG2000 98;
-  - the JPEG column shows odd qualities (`q:3`, `q:1`), which the JPEG
-    search (40, 38, ..., 2) never selects; `codecs` returns quality 4 or 2
-    for these inputs, which are also the evaluated bitstreams (e.g. 1022 B
-    at quality 4 instead of 896 B at quality 3 in the third row). Likewise
-    the JPEG-AI image of the last row (`q:15`, 896 B) differs from the
-    evaluated bitstream (14, 846 B).
+The code and data release of the conference paper, *Face Recognition at One Kilobyte:
+Evaluating Image Compression Algorithms for Barcode-Constrained Biometric Verification*
+(Hurtik and Števuliáková, IJCB 2026), is preserved under a git tag:
 
-- **112×112 bitstreams of JPEG, JPEG2000 and JPEG-FzT.** The paper's
-  112×112 files of these three codecs were produced by an earlier revision
-  of the quality search: they use odd JPEG qualities (e.g. 15, 13, 9),
-  JPEG2000 ratio 38 and JPEG-FzT qualities 62-68, which the current search
-  grids (JPEG 40, 38, ..., 2; JPEG2000 from ratio 80; JPEG-FzT up to 51) do
-  not visit. `face1kb.compression.codecs` therefore produces different
-  bitstreams for these codecs at 112×112, and the corresponding 112×112
-  rows, means and tests differ from the paper. The 224×224 results, and
-  WebP, JPEG-XL and JPEG-AI at both sizes, are reproduced.
+```bash
+git checkout ijcb2026
+```
+
+The extended study adds the two face1kb codecs, a larger public matcher roster, more
+resolutions and budgets, and the fairness, recompression, adversarial, annex and
+difficulty studies.
+
+## Licence
+
+- **Code**: MIT ([LICENSE](LICENSE)). The vendored EdgeFace backbone code in
+  `face1kb/third_party/edgeface/` is BSD-3-Clause
+  ([licence](face1kb/third_party/edgeface/LICENSE)).
+- **Weights** (`weights/`: both codecs and the Li-AE proxy): CC BY-NC-SA 4.0
+  ([weights/LICENSE](weights/LICENSE)). The weights are non-commercial because the
+  codecs were trained on WebFace42M, which is used for research purposes only.
+- **Bundled third-party weights**: `face1kb_accurate.safetensors` contains the frozen
+  **EdgeFace-S** model by Anjith George, Christophe Ecabert, Hatef Otroshi Shahreza,
+  Ketan Kotwal and Sébastien Marcel (Idiap Research Institute), licensed under
+  CC BY-NC-SA 4.0 ([model card](weights/README.md#bundled-third-party-weights-edgeface-s)).
+- **Other third-party components are not redistributed.** The JPEG-AI reference
+  software, the 14 face-recognition evaluators, the insightface models, CLIP and the
+  TopoFR code are fetched from their official sources at setup or run time, pinned by
+  commit or SHA-256, and stay under their own licences. Several allow non-commercial
+  research use only ([docs/models.md](docs/models.md),
+  [docs/baselines.md](docs/baselines.md#licences)).
 
 ## Citation
 
+If you use the codecs or the benchmark, please cite the extended study. If you refer
+to the conference results, please cite the IJCB paper.
+
 ```bibtex
-@inproceedings{face1kb2026,
+@article{hurtik2026sub1kb,
+  title   = {Toward Sub-1 kB Identity-Preserving Face Compression: A Benchmark of Codecs,
+             a Custom Learned Codec, and Studies of Resolution, Demographic Fairness,
+             Recompression, and Adversarial Robustness},
+  author  = {Hurtik, Petr and Sochor, Jakub},
+  journal = {arXiv preprint arXiv:2608.22866},
+  year    = {2026}
+}
+
+@inproceedings{hurtik2026onekilobyte,
+  title     = {Face Recognition at One Kilobyte: Evaluating Image Compression Algorithms
+               for Barcode-Constrained Biometric Verification},
   author    = {Hurtik, Petr and {\v{S}}tevuli{\'a}kov{\'a}, Petra},
-  title     = {Face Recognition at One Kilobyte: Evaluating Image
-               Compression Algorithms for Barcode-Constrained Biometric
-               Verification},
   booktitle = {IEEE International Joint Conference on Biometrics (IJCB)},
-  year      = {2026},
-  note      = {arXiv preprint: link coming soon}
+  year      = {2026}
 }
 ```
-
-## License
-
-Released under the [MIT License](LICENSE). The JPEG-AI reference software
-and the evaluated third-party models retain their own licenses.

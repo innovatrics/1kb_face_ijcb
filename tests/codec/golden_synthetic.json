@@ -1,0 +1,52 @@
+{
+ "device": "NVIDIA GeForce RTX 2080 Ti",
+ "capability": [
+  7,
+  5
+ ],
+ "torch": "2.10.0+cu128",
+ "compressai": "1.2.8",
+ "timm": "1.0.24",
+ "vectors": {
+  "fast/64/1024": {
+   "bytes": 643,
+   "sha256": "13a6e6a3a83bfcd7dd9138253536470186f2d3c9e2fefe5589b2f4dde50a6f04"
+  },
+  "fast/96/512": {
+   "bytes": 511,
+   "sha256": "94e91453196f58cf3d7080a7799df7eaf52cbcc0179edcf28120ea6826de92b4"
+  },
+  "fast/112/1024": {
+   "bytes": 1023,
+   "sha256": "605334ca9fc114698929b6db4f7994280634d0cd8368c49b7a161c26f76bae64"
+  },
+  "fast/168/1024": {
+   "bytes": 1007,
+   "sha256": "d926f06f02730b72129a5a2adcccbad554f1611383403deacbcf39bd3b1151af"
+  },
+  "fast/224/512": {
+   "bytes": 511,
+   "sha256": "1cad9546c29a61872c1ac27dd65b8dd4a71228aa8e525b57b310c27e87f1ec3f"
+  },
+  "accurate/64/1024": {
+   "bytes": 451,
+   "sha256": "4bc80bed66e7b103ebd030b92b6aabc223830947d9170a0403a2b505caf62658"
+  },
+  "accurate/96/512": {
+   "bytes": 495,
+   "sha256": "82bf5ca3df72e628d9be57a5ee5ff364605230cfec25fde6944ce70ee6e6a72a"
+  },
+  "accurate/112/1024": {
+   "bytes": 1007,
+   "sha256": "95db3b0b2ec442023cfc612790e5adce778a07fa0be4b2653987e86adc5430ee"
+  },
+  "accurate/168/1024": {
+   "bytes": 1007,
+   "sha256": "308b180858d636c5c8a7357cc6c6a716434bb8706164f1bceed3eee2440d424c"
+  },
+  "accurate/224/512": {
+   "bytes": 499,
+   "sha256": "0605ea8431988142b63a45cdaa9979940846704b706bcd3de9fb808ae100eeb1"
+  }
+ }
+}

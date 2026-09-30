@@ -1,0 +1,15 @@
+{
+  "n_crops": 2500,
+  "n_identities": 842,
+  "side_code_dim": 128,
+  "n_pos": 4681,
+  "n_neg": 200000,
+  "side_code_raw_EER_pct": 35.822,
+  "side_code_raw_AUC": 0.6337,
+  "side_code_centered_EER_pct": 16.984,
+  "side_code_centered_AUC": 0.9142,
+  "centered_mean_genuine_cos": 0.7443,
+  "centered_mean_impostor_cos": 0.001,
+  "random_code_EER_pct": 50.246,
+  "random_code_AUC": 0.4983
+}

@@ -1,0 +1,45 @@
+{
+  "quality_vs_identity": {
+    "1024": {
+      "spearman_rho": -0.455,
+      "p": 0.13765791634772948,
+      "n": 12
+    },
+    "512": {
+      "spearman_rho": -0.741,
+      "p": 0.005801150474478245,
+      "n": 12
+    }
+  },
+  "fairness_amplification": {
+    "basis": "MST5/6/7/9/10 (MST8 excluded; uniform across codecs)",
+    "arcface_antelopev2": {
+      "base_pp": 0.37,
+      "webp_pp": 0.9,
+      "ours_accurate_pp": 0.75,
+      "jpeg2000_pp": 5.08,
+      "jpeg2000_amplification": 13.7
+    },
+    "lvface_l": {
+      "base_pp": 0.33,
+      "webp_pp": 0.52,
+      "ours_accurate_pp": 0.7,
+      "jpeg2000_pp": 3.74,
+      "jpeg2000_amplification": 11.2
+    },
+    "topofr_r100": {
+      "base_pp": 0.26,
+      "webp_pp": 0.47,
+      "ours_accurate_pp": 0.41,
+      "jpeg2000_pp": 5.22,
+      "jpeg2000_amplification": 20.0
+    },
+    "edgeface_xs": {
+      "base_pp": 1.53,
+      "webp_pp": 2.3,
+      "ours_accurate_pp": 1.71,
+      "jpeg2000_pp": 6.49,
+      "jpeg2000_amplification": 4.2
+    }
+  }
+}

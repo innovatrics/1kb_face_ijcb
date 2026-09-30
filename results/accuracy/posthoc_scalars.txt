@@ -1,0 +1,2 @@
+n=14 k=12 friedman_chi2=130.6 friedman_p=1.31e-22 kendall_w=0.848
+mean_rank: JPEG-AI=1.86, WebP=3.07, Ours-ACCURATE=3.07, bmshj2018=4.00, AVIF=4.07, JPEG XL=6.79, HEIF=6.79, JPEG-FzT=7.29, Ours-FAST=8.86, JPEG=9.21, mbt2018=11.07, JPEG 2000=11.93

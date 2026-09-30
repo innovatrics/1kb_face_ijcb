@@ -1,0 +1,11 @@
+\begin{tabular}{l c c c c c c c c}
+\toprule
+Op.\ point & Synth. & \multicolumn{2}{c}{Decode (ms)} & Encode (ms) & PSNR & SSIM & id-cos & Bytes \\
+\cmidrule(lr){3-4}
+ & transf. & CPU & GPU & GPU & (dB) & & (ArcFace) & \\
+\midrule
+SOP & 1 & \cellcolor{green!25}\textbf{572} & 655 & \cellcolor{red!22}\underline{1956} & \cellcolor{red!22}\underline{34.99} & \cellcolor{red!22}\underline{0.912} & \cellcolor{red!22}\underline{0.945} & 1108 \\
+BOP & 2 & 599 & \cellcolor{green!25}\textbf{632} & \cellcolor{green!25}\textbf{1819} & 35.36 & 0.915 & 0.945 & 1108 \\
+HOP & 3 & \cellcolor{red!22}\underline{1192} & \cellcolor{red!22}\underline{656} & 1945 & \cellcolor{green!25}\textbf{35.93} & \cellcolor{green!25}\textbf{0.919} & \cellcolor{green!25}\textbf{0.949} & 1109 \\
+\bottomrule
+\end{tabular}

@@ -2,17 +2,33 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+build/
+dist/
 .venv/
 venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
 
-# Pipeline artifacts
+# Data, intermediates and outputs (paths of face1kb.config; never committed:
+# the datasets are not redistributable, and per-image derived data stays local)
 /data/
+/work/
 /outputs/
-/models/proprietary/*.onnx
-/models/mockup/*.onnx
+/models/
 
-# Third-party checkouts (see docs/JPEG_AI.md)
-/third_party/
+# Third-party checkouts fetched by the setup scripts (JPEG-AI reference software, ...)
+/third_party/*
+!/third_party/*.patch
+
+# Training runs and weight exports of the documented commands (docs/training.md)
+/runs/
+/*.safetensors
+*.part
+
+# Codec files and decoded images written by the CLI examples (repository root)
+*.f1k
+/*.png
 
 # Editors / OS
 .idea/

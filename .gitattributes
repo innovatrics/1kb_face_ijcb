@@ -1,0 +1,2 @@
+# Released model weights are stored with git LFS (run `git lfs pull` after cloning).
+weights/*.safetensors filter=lfs diff=lfs merge=lfs -text

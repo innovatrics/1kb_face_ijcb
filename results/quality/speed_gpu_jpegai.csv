@@ -1,0 +1,3 @@
+codec,device,res,budget,setting,median_bytes,enc_median_ms,enc_iqr_ms,enc_mean_ms,enc_std_ms,dec_median_ms,dec_iqr_ms,dec_mean_ms,dec_std_ms,n
+jpeg_ai,gpu,112,1024,65,1128,1823.5988,259.7241,1873.6331,270.0724,959.2338,179.8897,987.1945,123.2021,38
+jpeg_ai,cpu,112,1024,65,1128,,,,,829.5305,148.8585,846.1309,145.787,38

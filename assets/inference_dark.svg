@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="690" viewBox="0 0 960 690" role="img" aria-labelledby="t d"><title id="t">face1kb inference scheme</title><desc id="d">Encode: aligned crop, preparation with the ACCURATE side code, binary budget search over a 64-entry gain table with real rANS byte counts, container of at most B bytes with a 7-byte fixed overhead; overflow policies; decode path.</desc><defs><marker id="ah-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/></marker><marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff7b72"/></marker><marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/></marker><marker id="ah-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3fb9a6"/></marker><marker id="ah-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bc8cff"/></marker><marker id="ah-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d29922"/></marker></defs><rect x="0.5" y="0.5" width="959" height="689" rx="12" fill="#0d1117" stroke="#30363d"/><text x="28" y="34" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="18" font-weight="bold" fill="#e6edf3" text-anchor="start">Inference: a hard byte budget enforced at encode time</text>
+<text x="28" y="55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12" font-weight="normal" fill="#9198a1" text-anchor="start">The encoder measures real rANS output while it searches, so the container never exceeds B bytes in the default mode.</text>
+<text x="28" y="88" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="bold" fill="#9198a1" text-anchor="start">ENCODE</text>
+<rect x="24" y="98" width="116" height="128" rx="8" fill="#161b22" stroke="#8b949e" stroke-width="1.4"/>
+<text x="82.0" y="136.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Aligned crop</text>
+<text x="82.0" y="152.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">square RGB uint8</text>
+<text x="82.0" y="167.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">ArcFace 5-point</text>
+<text x="82.0" y="182.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">template</text>
+<text x="82.0" y="197.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">64-224 px</text>
+<rect x="164" y="98" width="150" height="128" rx="8" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="239.0" y="136.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Prepare</text>
+<text x="239.0" y="152.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">float [0, 1], padded</text>
+<text x="239.0" y="167.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">to a multiple of 128</text>
+<text x="239.0" y="182.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">ACC: EdgeFace-S</text>
+<text x="239.0" y="197.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">side code (8 B)</text>
+<rect x="338" y="98" width="412" height="128" rx="8" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="544.0" y="120" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Budget search</text>
+<text x="544.0" y="138" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">binary search over the frozen 64-entry gain table</text>
+<rect x="358" y="158" width="372" height="16" rx="3" fill="#151b23" stroke="#30363d" stroke-width="0.8"/>
+<rect x="358" y="158" width="228.27" height="16" rx="3" fill="#0c2622" stroke="#3fb9a6" stroke-width="0.8"/>
+<line x1="391.8" y1="170" x2="391.8" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="425.6" y1="170" x2="425.6" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="459.5" y1="170" x2="459.5" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="493.3" y1="170" x2="493.3" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="552.5" y1="170" x2="552.5" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="662.4" y1="170" x2="662.4" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="696.2" y1="170" x2="696.2" y2="174" stroke="#9198a1" stroke-width="0.8"/>
+<line x1="535.5" y1="161" x2="535.5" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="552.5" y1="161" x2="552.5" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="569.4" y1="161" x2="569.4" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="586.3" y1="161" x2="586.3" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="603.2" y1="161" x2="603.2" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="620.1" y1="161" x2="620.1" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<line x1="637.0" y1="161" x2="637.0" y2="171" stroke="#30363d" stroke-width="0.6"/>
+<circle cx="495.4" cy="166.0" r="2.6" fill="#3fb9a6"/>
+<text x="495.4" y="154" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#3fb9a6" text-anchor="middle">1</text>
+<circle cx="664.5" cy="166.0" r="2.6" fill="#ff7b72"/>
+<text x="664.5" y="154" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#ff7b72" text-anchor="middle">2</text>
+<circle cx="560.9" cy="166.0" r="2.6" fill="#3fb9a6"/>
+<text x="560.9" y="154" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#3fb9a6" text-anchor="middle">3</text>
+<circle cx="628.5" cy="166.0" r="2.6" fill="#ff7b72"/>
+<text x="628.5" y="185" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#ff7b72" text-anchor="middle">4</text>
+<circle cx="594.7" cy="166.0" r="2.6" fill="#ff7b72"/>
+<text x="594.7" y="154" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#ff7b72" text-anchor="middle">5</text>
+<circle cx="577.8" cy="166.0" r="2.6" fill="#3fb9a6"/>
+<text x="577.8" y="185" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="9.5" font-weight="bold" fill="#3fb9a6" text-anchor="middle">6</text>
+<rect x="568.36" y="155.5" width="18.91" height="21" fill="none" stroke="#3fb9a6" stroke-width="1.8" rx="2"/>
+<text x="358" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10" font-weight="normal" fill="#9198a1" text-anchor="start">lowest gain</text>
+<text x="730" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10" font-weight="normal" fill="#9198a1" text-anchor="end">highest gain</text>
+<text x="544.0" y="201" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#e6edf3" text-anchor="middle">fits: len(y) + len(z) ≤ B − 7 − sc_len  (− 4 more at 96/168 px)</text>
+<text x="394.0" y="218" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#3fb9a6" text-anchor="start">● fits</text>
+<text x="449.0" y="218" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#ff7b72" text-anchor="start">● too large</text>
+<text x="534.0" y="218" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="start">each probe = one real rANS encode</text>
+<rect x="774" y="98" width="162" height="128" rx="8" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="855.0" y="136.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Container ≤ B</text>
+<text x="855.0" y="152.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">rate_index in the header</text>
+<text x="855.0" y="167.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">restores the exact</text>
+<text x="855.0" y="182.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">gain at decode</text>
+<text x="855.0" y="197.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">(paper: B = 1024, 512)</text>
+<path d="M140,162.0 L162,162.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<path d="M314,162.0 L336,162.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<path d="M750,162.0 L772,162.0" fill="none" stroke="#3fb9a6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-teal)"/>
+<path d="M855,228 L855,270" fill="none" stroke="#3fb9a6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-teal)"/>
+<text x="28" y="262" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="bold" fill="#9198a1" text-anchor="start">CONTAINER (big-endian)</text>
+<rect x="24" y="272" width="70" height="46" rx="4" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="59.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">flags</text>
+<text x="59.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">1 B</text>
+<rect x="98" y="272" width="58" height="46" rx="4" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="127.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">res</text>
+<text x="127.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">1 B</text>
+<rect x="160" y="272" width="66" height="46" rx="4" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="193.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">sc_len</text>
+<text x="193.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">1 B</text>
+<rect x="230" y="272" width="118" height="46" rx="4" fill="#2d1414" stroke="#ff7b72" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="289.0" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">side-channel</text>
+<text x="289.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">ACC: 8 B</text>
+<rect x="352" y="272" width="62" height="46" rx="4" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="383.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">len(y)</text>
+<text x="383.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">2 B</text>
+<rect x="418" y="272" width="250" height="46" rx="4" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="543.0" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">y string</text>
+<text x="543.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">spatial latent</text>
+<rect x="672" y="272" width="62" height="46" rx="4" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="703.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">len(z)</text>
+<text x="703.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">2 B</text>
+<rect x="738" y="272" width="110" height="46" rx="4" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="793.0" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">z string</text>
+<text x="793.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">hyperprior</text>
+<rect x="852" y="272" width="64" height="46" rx="4" fill="#161b22" stroke="#8b949e" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="884.0" y="292" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="bold" fill="#e6edf3" text-anchor="middle">H, W</text>
+<text x="884.0" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="normal" fill="#9198a1" text-anchor="middle">4 B</text>
+<text x="24" y="336" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#e6edf3" text-anchor="start">flags = variant_id (2 bit: 0 FAST · 1 ACCURATE · 2 identity-only) | rate_index (6 bit, 0-63)</text>
+<text x="24" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#e6edf3" text-anchor="start">res = 64→0 · 128→1 · 192→2 · 256→3 · 112→4 · 224→5 · 255 = raw geometry (96, 168 px), followed by the 4-byte H, W trailer</text>
+<text x="24" y="372" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="start">Fixed overhead 1 + 1 + 1 + 2 + 2 = 7 B. ACCURATE side-channel: the same 8 B for every image with the released weights. No CRC.</text>
+<text x="28" y="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="bold" fill="#9198a1" text-anchor="start">WHEN EVEN THE LOWEST GAIN DOES NOT FIT</text>
+<rect x="24" y="410" width="292" height="76" rx="8" fill="#2b2111" stroke="#d29922" stroke-width="1.4"/>
+<text x="170.0" y="429.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">overflow="identity"</text>
+<text x="170.0" y="445.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">default: identity-only container</text>
+<text x="170.0" y="460.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">(3 B + side-channel), black frame</text>
+<text x="170.0" y="475.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">on decode, IdentityOnlyWarning</text>
+<rect x="334" y="410" width="292" height="76" rx="8" fill="#161b22" stroke="#8b949e" stroke-width="1.4"/>
+<text x="480.0" y="429.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">overflow="floor"</text>
+<text x="480.0" y="445.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">paper behaviour (paper_compat=True):</text>
+<text x="480.0" y="460.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">lowest-gain stream, flagged</text>
+<text x="480.0" y="475.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">over_budget, can exceed B</text>
+<rect x="644" y="410" width="292" height="76" rx="8" fill="#161b22" stroke="#8b949e" stroke-width="1.4"/>
+<text x="790.0" y="444.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="12.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">overflow="error"</text>
+<text x="790.0" y="460.25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">raises BudgetError</text>
+<text x="28" y="520" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="10.5" font-weight="bold" fill="#9198a1" text-anchor="start">DECODE</text>
+<rect x="24" y="530" width="150" height="86" rx="8" fill="#0c2622" stroke="#3fb9a6" stroke-width="1.4"/>
+<text x="99.0" y="562.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Parse header</text>
+<text x="99.0" y="578.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">variant, rate_index,</text>
+<text x="99.0" y="593.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">geometry, lengths</text>
+<rect x="196" y="530" width="150" height="86" rx="8" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="271.0" y="562.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Gain</text>
+<text x="271.0" y="578.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">table[rate_index]</text>
+<text x="271.0" y="593.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">bit-exact</text>
+<rect x="368" y="530" width="172" height="86" rx="8" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="454.0" y="562.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Entropy decode</text>
+<text x="454.0" y="578.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">ẑ → hₛ → μ, σ</text>
+<text x="454.0" y="593.05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">→ ŷ (rANS)</text>
+<rect x="562" y="530" width="190" height="86" rx="8" fill="#0f2139" stroke="#58a6ff" stroke-width="1.4"/>
+<text x="657.0" y="554.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Synthesis gₛ</text>
+<text x="657.0" y="570.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">FiLM on gain, resolution</text>
+<text x="657.0" y="585.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">ACC: + side code</text>
+<text x="657.0" y="600.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">and refine head</text>
+<rect x="774" y="530" width="162" height="86" rx="8" fill="#161b22" stroke="#8b949e" stroke-width="1.4"/>
+<text x="855.0" y="554.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="13.5" font-weight="bold" fill="#e6edf3" text-anchor="middle">Reconstruction</text>
+<text x="855.0" y="570.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">H × W × 3 uint8 RGB</text>
+<text x="855.0" y="585.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle">padding cropped off</text>
+<text x="855.0" y="600.55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="middle"></text>
+<path d="M174,573.0 L194,573.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<path d="M346,573.0 L366,573.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<path d="M540,573.0 L560,573.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<path d="M752,573.0 L772,573.0" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#ah-arrow)"/>
+<text x="28" y="644" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="start">paper_compat=True reproduces the paper bitstreams byte for byte (its accounting ignores the 4-byte trailer at 96/168 px); the default reserves it.</text>
+<text x="28" y="664" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif" font-size="11" font-weight="normal" fill="#9198a1" text-anchor="start">Bitstreams are portable only between identical CUDA devices and software stacks; CUDA-encoded streams do not decode on CPU.</text></svg>

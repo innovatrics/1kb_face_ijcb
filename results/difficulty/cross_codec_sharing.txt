@@ -1,0 +1,2 @@
+colorferet: mean_pairwise_rho=0.33 range[0.00,0.59]
+kk: mean_pairwise_rho=0.38 range[0.09,0.63]
